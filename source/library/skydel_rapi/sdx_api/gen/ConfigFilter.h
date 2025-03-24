@@ -4,12 +4,20 @@
 
 namespace Sdx
 {
-  ///
-  /// The different kinds of filters for configuration.
-  ///
-  
-  enum class ConfigFilter : int { Radios, OutputAndRadios, VehicleMotion, VehicleAntenna, Interference, PlugIn };
-}
+///
+/// The different kinds of filters for configuration.
+///
+
+enum class ConfigFilter : int
+{
+  Radios,
+  OutputAndRadios,
+  VehicleMotion,
+  VehicleAntenna,
+  Interference,
+  PlugIn
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::ConfigFilter>
@@ -21,6 +29,8 @@ struct parse_json<Sdx::ConfigFilter>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::ConfigFilter>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::ConfigFilter value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::ConfigFilter value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

@@ -4,12 +4,16 @@
 
 namespace Sdx
 {
-  ///
-  /// Encryption signal type.
-  ///
-  
-  enum class EncryptionSignalType : int { PY_CODE, PRS };
-}
+///
+/// Encryption signal type.
+///
+
+enum class EncryptionSignalType : int
+{
+  PY_CODE,
+  PRS
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::EncryptionSignalType>
@@ -21,6 +25,8 @@ struct parse_json<Sdx::EncryptionSignalType>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::EncryptionSignalType>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::EncryptionSignalType value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::EncryptionSignalType value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

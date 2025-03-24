@@ -4,12 +4,18 @@
 
 namespace Sdx
 {
-  ///
-  /// The simulator state.
-  ///
-  
-  enum class SimulatorState : int { StateNone, StateIdle, StateStarted, StateError };
-}
+///
+/// The simulator state.
+///
+
+enum class SimulatorState : int
+{
+  StateNone,
+  StateIdle,
+  StateStarted,
+  StateError
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::SimulatorState>
@@ -21,6 +27,8 @@ struct parse_json<Sdx::SimulatorState>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::SimulatorState>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::SimulatorState value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::SimulatorState value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

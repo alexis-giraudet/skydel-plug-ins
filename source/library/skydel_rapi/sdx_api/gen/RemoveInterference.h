@@ -1,53 +1,74 @@
 #pragma once
 
 #include <memory>
-#include "command_base.h"
-
 #include <string>
+
+#include "command_base.h"
+#include "command_factory.h"
 
 namespace Sdx
 {
-  namespace Cmd
+namespace Cmd
+{
+///
+/// Removes an interference. When adding an event, the simulator
+/// sets the Id parameter. Use that Id here to remove the associated interference.
+///
+/// Name Type   Description
+/// ---- ------ ------------------------------------------------
+/// Id   string Unique identifier of the interference to remove.
+///
+
+class RemoveInterference;
+typedef std::shared_ptr<RemoveInterference> RemoveInterferencePtr;
+
+class RemoveInterference : public CommandBase
+{
+public:
+  inline static const char* const CmdName = "RemoveInterference";
+  inline static const char* const Documentation =
+    "Removes an interference. When adding an event, the simulator\n"
+    "sets the Id parameter. Use that Id here to remove the associated interference.\n"
+    "\n"
+    "Name Type   Description\n"
+    "---- ------ ------------------------------------------------\n"
+    "Id   string Unique identifier of the interference to remove.";
+  inline static const char* const TargetId = "";
+
+  RemoveInterference() : CommandBase(CmdName, TargetId) {}
+
+  RemoveInterference(const std::string& id) : CommandBase(CmdName, TargetId) { setId(id); }
+
+  static RemoveInterferencePtr create(const std::string& id) { return std::make_shared<RemoveInterference>(id); }
+
+  static RemoveInterferencePtr dynamicCast(CommandBasePtr ptr)
   {
-    ///
-    /// Removes an interference. When adding an event, the simulator
-    /// sets the Id parameter. Use that Id here to remove the associated interference.
-    ///
-    /// Name Type   Description
-    /// ---- ------ ------------------------------------------------
-    /// Id   string Unique identifier of the interference to remove.
-    ///
-
-    class RemoveInterference;
-    typedef std::shared_ptr<RemoveInterference> RemoveInterferencePtr;
-    
-    
-    class RemoveInterference : public CommandBase
-    {
-    public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
-
-
-      RemoveInterference();
-
-      RemoveInterference(const std::string& id);
-
-      static RemoveInterferencePtr create(const std::string& id);
-      static RemoveInterferencePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
-
-      virtual int executePermission() const override;
-
-
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
-    };
-    
+    return std::dynamic_pointer_cast<RemoveInterference>(ptr);
   }
-}
 
+  virtual bool isValid() const override
+  {
+
+    return m_values.IsObject() && parse_json<std::string>::is_valid(m_values["Id"]);
+  }
+
+  virtual std::string documentation() const override { return Documentation; }
+
+  virtual const std::vector<std::string>& fieldNames() const override
+  {
+    static const std::vector<std::string> names {"Id"};
+    return names;
+  }
+
+  int executePermission() const { return EXECUTE_IF_IDLE; }
+
+  std::string id() const { return parse_json<std::string>::parse(m_values["Id"]); }
+
+  void setId(const std::string& id)
+  {
+    m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+  }
+};
+REGISTER_COMMAND_TO_FACTORY(RemoveInterference);
+} // namespace Cmd
+} // namespace Sdx

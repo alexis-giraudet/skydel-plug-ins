@@ -4,12 +4,17 @@
 
 namespace Sdx
 {
-  ///
-  /// A log record level.
-  ///
-  
-  enum class LogLevel : int { Message, Warning, Error };
-}
+///
+/// A log record level.
+///
+
+enum class LogLevel : int
+{
+  Message,
+  Warning,
+  Error
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::LogLevel>
@@ -21,6 +26,8 @@ struct parse_json<Sdx::LogLevel>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::LogLevel>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::LogLevel value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::LogLevel value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

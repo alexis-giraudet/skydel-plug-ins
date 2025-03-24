@@ -4,12 +4,18 @@
 
 namespace Sdx
 {
-  ///
-  /// The type of propagation model
-  ///
-  
-  enum class PropagationModelType : int { Rural, Suburban, Urban, Manual };
-}
+///
+/// The type of propagation model
+///
+
+enum class PropagationModelType : int
+{
+  Rural,
+  Suburban,
+  Urban,
+  Manual
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::PropagationModelType>
@@ -21,6 +27,8 @@ struct parse_json<Sdx::PropagationModelType>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::PropagationModelType>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::PropagationModelType value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::PropagationModelType value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

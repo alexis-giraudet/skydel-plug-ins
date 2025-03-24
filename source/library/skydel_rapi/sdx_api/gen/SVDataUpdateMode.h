@@ -4,12 +4,16 @@
 
 namespace Sdx
 {
-  ///
-  /// The SV data update mode.
-  ///
-  
-  enum class SVDataUpdateMode : int { Extrapolation, Dynamic };
-}
+///
+/// The SV data update mode.
+///
+
+enum class SVDataUpdateMode : int
+{
+  Extrapolation,
+  Dynamic
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::SVDataUpdateMode>
@@ -21,6 +25,8 @@ struct parse_json<Sdx::SVDataUpdateMode>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::SVDataUpdateMode>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::SVDataUpdateMode value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::SVDataUpdateMode value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

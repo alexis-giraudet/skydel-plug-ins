@@ -4,12 +4,17 @@
 
 namespace Sdx
 {
-  ///
-  /// The flow control used by a serial port.
-  ///
-  
-  enum class SerialPortFlowControl : int { NoFlowControl, Hardware, Software };
-}
+///
+/// The flow control used by a serial port.
+///
+
+enum class SerialPortFlowControl : int
+{
+  NoFlowControl,
+  Hardware,
+  Software
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::SerialPortFlowControl>
@@ -21,6 +26,8 @@ struct parse_json<Sdx::SerialPortFlowControl>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::SerialPortFlowControl>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::SerialPortFlowControl value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::SerialPortFlowControl value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

@@ -4,12 +4,17 @@
 
 namespace Sdx
 {
-  ///
-  /// HIL extrapolation state.
-  ///
-  
-  enum class HilExtrapolationState : int { Deterministic, NonDeterministic, Snap };
-}
+///
+/// HIL extrapolation state.
+///
+
+enum class HilExtrapolationState : int
+{
+  Deterministic,
+  NonDeterministic,
+  Snap
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::HilExtrapolationState>
@@ -21,6 +26,8 @@ struct parse_json<Sdx::HilExtrapolationState>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::HilExtrapolationState>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::HilExtrapolationState value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::HilExtrapolationState value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-
