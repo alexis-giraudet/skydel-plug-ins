@@ -9,15 +9,15 @@
 #include "command_base.h"
 #include "parse_json.hpp"
 
-#define REGISTER_COMMAND_TO_FACTORY(COMMAND_CLASS_NAME)                                                       \
-  inline CommandBasePtr functionToCreateCommand##COMMAND_CLASS_NAME()                                         \
-  {                                                                                                           \
-    return std::make_shared<COMMAND_CLASS_NAME>();                                                            \
-  }                                                                                                           \
-  inline static const auto isRegistered##COMMAND_CLASS_NAME = CommandFactory::instance()->registerFactoryFunction(  \
-                                                          COMMAND_CLASS_NAME::TargetId,                       \
-                                                          COMMAND_CLASS_NAME::CmdName,                        \
-                                                          functionToCreateCommand##COMMAND_CLASS_NAME);
+#define REGISTER_COMMAND_TO_FACTORY(COMMAND_CLASS_NAME)                               \
+  inline CommandBasePtr functionToCreateCommand##COMMAND_CLASS_NAME()                 \
+  {                                                                                   \
+    return std::make_shared<COMMAND_CLASS_NAME>();                                    \
+  }                                                                                   \
+  inline static const auto isRegistered##COMMAND_CLASS_NAME =                         \
+    CommandFactory::instance()->registerFactoryFunction(COMMAND_CLASS_NAME::TargetId, \
+                                                        COMMAND_CLASS_NAME::CmdName,  \
+                                                        functionToCreateCommand##COMMAND_CLASS_NAME);
 
 namespace Sdx
 {

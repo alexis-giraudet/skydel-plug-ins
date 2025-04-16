@@ -4,12 +4,19 @@
 
 namespace Sdx
 {
-  ///
-  /// The Parity scheme used by a serial port.
-  ///
-  
-  enum class SerialPortParity : int { NoParity, Even, Odd, Space, Mark };
-}
+///
+/// The Parity scheme used by a serial port.
+///
+
+enum class SerialPortParity : int
+{
+  NoParity,
+  Even,
+  Odd,
+  Space,
+  Mark
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::SerialPortParity>
@@ -21,6 +28,8 @@ struct parse_json<Sdx::SerialPortParity>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::SerialPortParity>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::SerialPortParity value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::SerialPortParity value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

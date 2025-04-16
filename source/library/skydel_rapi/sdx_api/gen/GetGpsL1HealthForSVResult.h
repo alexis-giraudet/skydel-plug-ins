@@ -1,133 +1,127 @@
 #pragma once
 
 #include <memory>
-#include "command_result.h"
-#include "command_factory.h"
 #include <optional>
 #include <string>
 
+#include "command_factory.h"
+#include "command_result.h"
+
 namespace Sdx
 {
-  namespace Cmd
+namespace Cmd
+{
+///
+/// Result of GetGpsL1HealthForSV.
+///
+/// Name        Type            Description
+/// ----------- ---------------
+/// ------------------------------------------------------------------------------------------- SvId        int
+/// Satellite's SV ID 1..32 Health      bool            L1 health, false = signal OK, true = signal bad or unavailable
+/// DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is
+/// used.
+///
+
+class GetGpsL1HealthForSVResult;
+typedef std::shared_ptr<GetGpsL1HealthForSVResult> GetGpsL1HealthForSVResultPtr;
+
+class GetGpsL1HealthForSVResult : public CommandResult
+{
+public:
+  inline static const char* const CmdName = "GetGpsL1HealthForSVResult";
+  inline static const char* const Documentation =
+    "Result of GetGpsL1HealthForSV.\n"
+    "\n"
+    "Name        Type            Description\n"
+    "----------- --------------- -------------------------------------------------------------------------------------------\n"
+    "SvId        int             Satellite's SV ID 1..32\n"
+    "Health      bool            L1 health, false = signal OK, true = signal bad or unavailable\n"
+    "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
+  inline static const char* const TargetId = "";
+
+  GetGpsL1HealthForSVResult() : CommandResult(CmdName, TargetId) {}
+
+  GetGpsL1HealthForSVResult(int svId, bool health, const std::optional<std::string>& dataSetName = {}) :
+    CommandResult(CmdName, TargetId)
   {
-    ///
-    /// Result of GetGpsL1HealthForSV.
-    ///
-    /// Name        Type            Description
-    /// ----------- --------------- -------------------------------------------------------------------------------------------
-    /// SvId        int             Satellite's SV ID 1..32
-    /// Health      bool            L1 health, false = signal OK, true = signal bad or unavailable
-    /// DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.
-    ///
 
-    class GetGpsL1HealthForSVResult;
-    typedef std::shared_ptr<GetGpsL1HealthForSVResult> GetGpsL1HealthForSVResultPtr;
-    
-    
-    class GetGpsL1HealthForSVResult : public CommandResult
-    {
-    public:
-      inline static const char* const CmdName = "GetGpsL1HealthForSVResult";
-      inline static const char* const Documentation = "Result of GetGpsL1HealthForSV.\n"      "\n"      "Name        Type            Description\n"      "----------- --------------- -------------------------------------------------------------------------------------------\n"      "SvId        int             Satellite's SV ID 1..32\n"      "Health      bool            L1 health, false = signal OK, true = signal bad or unavailable\n"      "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
-      inline static const char* const TargetId = "";
-
-
-
-          GetGpsL1HealthForSVResult()
-            : CommandResult(CmdName, TargetId)
-          {}
-
-          GetGpsL1HealthForSVResult(int svId, bool health, const std::optional<std::string>& dataSetName = {})
-            : CommandResult(CmdName, TargetId)
-          {
-
-            setSvId(svId);
-            setHealth(health);
-            setDataSetName(dataSetName);
-          }
-
-          GetGpsL1HealthForSVResult(CommandBasePtr relatedCommand, int svId, bool health, const std::optional<std::string>& dataSetName = {})
-            : CommandResult(CmdName, TargetId, relatedCommand)
-          {
-
-            setSvId(svId);
-            setHealth(health);
-            setDataSetName(dataSetName);
-          }
-
-
-
-          static GetGpsL1HealthForSVResultPtr create(int svId, bool health, const std::optional<std::string>& dataSetName = {})
-          {
-            return std::make_shared<GetGpsL1HealthForSVResult>(svId, health, dataSetName);
-          }
-
-          static GetGpsL1HealthForSVResultPtr create(CommandBasePtr relatedCommand, int svId, bool health, const std::optional<std::string>& dataSetName = {})
-          {
-            return std::make_shared<GetGpsL1HealthForSVResult>(relatedCommand, svId, health, dataSetName);
-          }
-
-      static GetGpsL1HealthForSVResultPtr dynamicCast(CommandBasePtr ptr)
-      {
-        return std::dynamic_pointer_cast<GetGpsL1HealthForSVResult>(ptr);
-      }
-
-      virtual bool isValid() const override
-      {
-
-                return m_values.IsObject()
-                  && parse_json<int>::is_valid(m_values["SvId"])
-                  && parse_json<bool>::is_valid(m_values["Health"])
-                  && parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"])
-                ;
-      }
-
-      virtual std::string documentation() const override { return Documentation; }
-
-      virtual const std::vector<std::string>& fieldNames() const override
-      { 
-        static const std::vector<std::string> names {"SvId", "Health", "DataSetName"}; 
-        return names; 
-      }
-      
-
-
-          int svId() const
-          {
-            return parse_json<int>::parse(m_values["SvId"]);
-          }
-
-          void setSvId(int svId)
-          {
-            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
-          }
-
-
-
-          bool health() const
-          {
-            return parse_json<bool>::parse(m_values["Health"]);
-          }
-
-          void setHealth(bool health)
-          {
-            m_values.AddMember("Health", parse_json<bool>::format(health, m_values.GetAllocator()), m_values.GetAllocator());
-          }
-
-
-
-          std::optional<std::string> dataSetName() const
-          {
-            return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
-          }
-
-          void setDataSetName(const std::optional<std::string>& dataSetName)
-          {
-            m_values.AddMember("DataSetName", parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
-          }
-
-    };
-    REGISTER_COMMAND_TO_FACTORY(GetGpsL1HealthForSVResult);
+    setSvId(svId);
+    setHealth(health);
+    setDataSetName(dataSetName);
   }
-}
 
+  GetGpsL1HealthForSVResult(CommandBasePtr relatedCommand,
+                            int svId,
+                            bool health,
+                            const std::optional<std::string>& dataSetName = {}) :
+    CommandResult(CmdName, TargetId, relatedCommand)
+  {
+
+    setSvId(svId);
+    setHealth(health);
+    setDataSetName(dataSetName);
+  }
+
+  static GetGpsL1HealthForSVResultPtr create(int svId, bool health, const std::optional<std::string>& dataSetName = {})
+  {
+    return std::make_shared<GetGpsL1HealthForSVResult>(svId, health, dataSetName);
+  }
+
+  static GetGpsL1HealthForSVResultPtr create(CommandBasePtr relatedCommand,
+                                             int svId,
+                                             bool health,
+                                             const std::optional<std::string>& dataSetName = {})
+  {
+    return std::make_shared<GetGpsL1HealthForSVResult>(relatedCommand, svId, health, dataSetName);
+  }
+
+  static GetGpsL1HealthForSVResultPtr dynamicCast(CommandBasePtr ptr)
+  {
+    return std::dynamic_pointer_cast<GetGpsL1HealthForSVResult>(ptr);
+  }
+
+  virtual bool isValid() const override
+  {
+
+    return m_values.IsObject() && parse_json<int>::is_valid(m_values["SvId"]) &&
+           parse_json<bool>::is_valid(m_values["Health"]) &&
+           parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"]);
+  }
+
+  virtual std::string documentation() const override { return Documentation; }
+
+  virtual const std::vector<std::string>& fieldNames() const override
+  {
+    static const std::vector<std::string> names {"SvId", "Health", "DataSetName"};
+    return names;
+  }
+
+  int svId() const { return parse_json<int>::parse(m_values["SvId"]); }
+
+  void setSvId(int svId)
+  {
+    m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+  }
+
+  bool health() const { return parse_json<bool>::parse(m_values["Health"]); }
+
+  void setHealth(bool health)
+  {
+    m_values.AddMember("Health", parse_json<bool>::format(health, m_values.GetAllocator()), m_values.GetAllocator());
+  }
+
+  std::optional<std::string> dataSetName() const
+  {
+    return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
+  }
+
+  void setDataSetName(const std::optional<std::string>& dataSetName)
+  {
+    m_values.AddMember("DataSetName",
+                       parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()),
+                       m_values.GetAllocator());
+  }
+};
+REGISTER_COMMAND_TO_FACTORY(GetGpsL1HealthForSVResult);
+} // namespace Cmd
+} // namespace Sdx

@@ -4,12 +4,17 @@
 
 namespace Sdx
 {
-  ///
-  /// Possible values for antenna patterns
-  ///
-  
-  enum class AntennaPatternType : int { Default, AntennaNone, Custom };
-}
+///
+/// Possible values for antenna patterns
+///
+
+enum class AntennaPatternType : int
+{
+  Default,
+  AntennaNone,
+  Custom
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::AntennaPatternType>
@@ -21,6 +26,8 @@ struct parse_json<Sdx::AntennaPatternType>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::AntennaPatternType>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::AntennaPatternType value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::AntennaPatternType value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-

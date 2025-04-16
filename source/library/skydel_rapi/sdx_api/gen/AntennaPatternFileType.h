@@ -4,12 +4,18 @@
 
 namespace Sdx
 {
-  ///
-  /// CSV file format of antenna pattern
-  ///
-  
-  enum class AntennaPatternFileType : int { NotAngle, Degrees, Radians, NoneFile };
-}
+///
+/// CSV file format of antenna pattern
+///
+
+enum class AntennaPatternFileType : int
+{
+  NotAngle,
+  Degrees,
+  Radians,
+  NoneFile
+};
+} // namespace Sdx
 
 template<>
 struct parse_json<Sdx::AntennaPatternFileType>
@@ -21,6 +27,8 @@ struct parse_json<Sdx::AntennaPatternFileType>
       throw std::runtime_error("Unexpected value");
     return static_cast<Sdx::AntennaPatternFileType>(value.GetInt());
   }
-  static rapidjson::Value format(Sdx::AntennaPatternFileType value, rapidjson::Value::AllocatorType&) { return rapidjson::Value(static_cast<int>(value)); }
+  static rapidjson::Value format(Sdx::AntennaPatternFileType value, rapidjson::Value::AllocatorType&)
+  {
+    return rapidjson::Value(static_cast<int>(value));
+  }
 };
-
