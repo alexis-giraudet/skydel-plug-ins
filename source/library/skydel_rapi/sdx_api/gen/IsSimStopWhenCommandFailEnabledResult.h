@@ -24,31 +24,77 @@ namespace Sdx
     class IsSimStopWhenCommandFailEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsSimStopWhenCommandFailEnabledResult";
+      inline static const char* const Documentation = "Result of IsSimStopWhenCommandFailEnabled.\n"      "\n"      "Name    Type Description\n"      "------- ---- ----------------------------------\n"      "Enabled bool Enable stop when command fail flag";
+      inline static const char* const TargetId = "";
 
 
-      IsSimStopWhenCommandFailEnabledResult();
 
-      IsSimStopWhenCommandFailEnabledResult(bool enabled);
+          IsSimStopWhenCommandFailEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsSimStopWhenCommandFailEnabledResult(CommandBasePtr relatedCommand, bool enabled);
+          IsSimStopWhenCommandFailEnabledResult(bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsSimStopWhenCommandFailEnabledResultPtr create(bool enabled);
+            setEnabled(enabled);
+          }
 
-      static IsSimStopWhenCommandFailEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled);
-      static IsSimStopWhenCommandFailEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsSimStopWhenCommandFailEnabledResult(CommandBasePtr relatedCommand, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsSimStopWhenCommandFailEnabledResultPtr create(bool enabled)
+          {
+            return std::make_shared<IsSimStopWhenCommandFailEnabledResult>(enabled);
+          }
+
+          static IsSimStopWhenCommandFailEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled)
+          {
+            return std::make_shared<IsSimStopWhenCommandFailEnabledResult>(relatedCommand, enabled);
+          }
+
+      static IsSimStopWhenCommandFailEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsSimStopWhenCommandFailEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsSimStopWhenCommandFailEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsSimStopWhenCommandFailEnabledResult);
   }
 }
 

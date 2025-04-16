@@ -25,36 +25,92 @@ namespace Sdx
     class GetSbasMessageUpdateIntervalResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSbasMessageUpdateIntervalResult";
+      inline static const char* const Documentation = "Result of GetSbasMessageUpdateInterval.\n"      "\n"      "Name           Type Description\n"      "-------------- ---- -----------------------------------------------------------------------------------------------\n"      "Message        int  The message type.\n"      "UpdateInterval int  The message update interval in seconds. Accepted range is [6..300] and must be a multiple of 6.";
+      inline static const char* const TargetId = "";
 
 
-      GetSbasMessageUpdateIntervalResult();
 
-      GetSbasMessageUpdateIntervalResult(int message, int updateInterval);
+          GetSbasMessageUpdateIntervalResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetSbasMessageUpdateIntervalResult(CommandBasePtr relatedCommand, int message, int updateInterval);
+          GetSbasMessageUpdateIntervalResult(int message, int updateInterval)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetSbasMessageUpdateIntervalResultPtr create(int message, int updateInterval);
+            setMessage(message);
+            setUpdateInterval(updateInterval);
+          }
 
-      static GetSbasMessageUpdateIntervalResultPtr create(CommandBasePtr relatedCommand, int message, int updateInterval);
-      static GetSbasMessageUpdateIntervalResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSbasMessageUpdateIntervalResult(CommandBasePtr relatedCommand, int message, int updateInterval)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setMessage(message);
+            setUpdateInterval(updateInterval);
+          }
 
 
-      // **** message ****
-      int message() const;
-      void setMessage(int message);
+
+          static GetSbasMessageUpdateIntervalResultPtr create(int message, int updateInterval)
+          {
+            return std::make_shared<GetSbasMessageUpdateIntervalResult>(message, updateInterval);
+          }
+
+          static GetSbasMessageUpdateIntervalResultPtr create(CommandBasePtr relatedCommand, int message, int updateInterval)
+          {
+            return std::make_shared<GetSbasMessageUpdateIntervalResult>(relatedCommand, message, updateInterval);
+          }
+
+      static GetSbasMessageUpdateIntervalResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSbasMessageUpdateIntervalResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Message"])
+                  && parse_json<int>::is_valid(m_values["UpdateInterval"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Message", "UpdateInterval"}; 
+        return names; 
+      }
+      
 
 
-      // **** updateInterval ****
-      int updateInterval() const;
-      void setUpdateInterval(int updateInterval);
+          int message() const
+          {
+            return parse_json<int>::parse(m_values["Message"]);
+          }
+
+          void setMessage(int message)
+          {
+            m_values.AddMember("Message", parse_json<int>::format(message, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int updateInterval() const
+          {
+            return parse_json<int>::parse(m_values["UpdateInterval"]);
+          }
+
+          void setUpdateInterval(int updateInterval)
+          {
+            m_values.AddMember("UpdateInterval", parse_json<int>::format(updateInterval, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetSbasMessageUpdateIntervalResult);
+    REGISTER_COMMAND_TO_FACTORY(GetSbasMessageUpdateIntervalResult);
   }
 }
 

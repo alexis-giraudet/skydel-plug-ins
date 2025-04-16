@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class GetStartTimeMode : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetStartTimeMode";
+      inline static const char* const Documentation = "Get the simulation start time mode.";
+      inline static const char* const TargetId = "";
 
 
-      GetStartTimeMode();
 
-      static GetStartTimeModePtr create();
-      static GetStartTimeModePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetStartTimeMode()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetStartTimeModePtr create()
+          {
+            return std::make_shared<GetStartTimeMode>();
+          }
+
+      static GetStartTimeModePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetStartTimeMode>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetStartTimeMode);
   }
 }
 

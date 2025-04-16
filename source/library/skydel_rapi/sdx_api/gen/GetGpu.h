@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class GetGpu : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGpu";
+      inline static const char* const Documentation = "Get the GPU associated with a RF output of a modulation target.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -------------------------\n"      "Output int    Output index (zero based)\n"      "Id     string Target identifier";
+      inline static const char* const TargetId = "";
 
 
-      GetGpu();
 
-      GetGpu(int output, const std::string& id);
+          GetGpu()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetGpuPtr create(int output, const std::string& id);
-      static GetGpuPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGpu(int output, const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** output ****
-      int output() const;
-      void setOutput(int output);
+            setOutput(output);
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static GetGpuPtr create(int output, const std::string& id)
+          {
+            return std::make_shared<GetGpu>(output, id);
+          }
+
+      static GetGpuPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGpu>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Output"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Output", "Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int output() const
+          {
+            return parse_json<int>::parse(m_values["Output"]);
+          }
+
+          void setOutput(int output)
+          {
+            m_values.AddMember("Output", parse_json<int>::format(output, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetGpu);
   }
 }
 

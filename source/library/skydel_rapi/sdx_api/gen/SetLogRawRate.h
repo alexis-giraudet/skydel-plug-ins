@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetLogRawRate : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetLogRawRate";
+      inline static const char* const Documentation = "Set Rate logging of raw data\n"      "\n"      "Name Type Description\n"      "---- ---- --------------------------------------\n"      "Rate int  Accepted rates are 10, 100 and 1000 Hz";
+      inline static const char* const TargetId = "";
 
 
-      SetLogRawRate();
 
-      SetLogRawRate(int rate);
+          SetLogRawRate()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetLogRawRatePtr create(int rate);
-      static SetLogRawRatePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetLogRawRate(int rate)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setRate(rate);
+          }
 
 
-      // **** rate ****
-      int rate() const;
-      void setRate(int rate);
+          static SetLogRawRatePtr create(int rate)
+          {
+            return std::make_shared<SetLogRawRate>(rate);
+          }
+
+      static SetLogRawRatePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetLogRawRate>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Rate"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Rate"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int rate() const
+          {
+            return parse_json<int>::parse(m_values["Rate"]);
+          }
+
+          void setRate(int rate)
+          {
+            m_values.AddMember("Rate", parse_json<int>::format(rate, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetLogRawRate);
   }
 }
 

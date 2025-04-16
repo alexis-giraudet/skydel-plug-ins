@@ -22,22 +22,50 @@ namespace Sdx
     class SuccessResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SuccessResult";
+      inline static const char* const Documentation = "When command succeed.";
+      inline static const char* const TargetId = "";
 
 
-      SuccessResult();
 
-      SuccessResult(CommandBasePtr relatedCommand);
+          SuccessResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      static SuccessResultPtr create(CommandBasePtr relatedCommand);
-      static SuccessResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SuccessResult(CommandBasePtr relatedCommand)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+          }
+
+
+          static SuccessResultPtr create(CommandBasePtr relatedCommand)
+          {
+            return std::make_shared<SuccessResult>(relatedCommand);
+          }
+
+      static SuccessResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SuccessResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(SuccessResult);
+    REGISTER_COMMAND_TO_FACTORY(SuccessResult);
   }
 }
 

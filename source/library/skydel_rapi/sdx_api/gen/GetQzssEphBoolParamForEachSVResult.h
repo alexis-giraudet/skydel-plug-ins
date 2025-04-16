@@ -29,41 +29,107 @@ namespace Sdx
     class GetQzssEphBoolParamForEachSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetQzssEphBoolParamForEachSVResult";
+      inline static const char* const Documentation = "Result of GetQzssEphBoolParamForEachSV.\n"      "\n"      "Name        Type            Description\n"      "----------- --------------- --------------------------------------------------------------------------------------------------\n"      "ParamName   string          Refer to SetQzssEphemerisBoolParam for accepted names\n"      "Val         array bool      Parameter value for each satellite. Zero based index (index 0 => SV ID 1, index 1 => SV ID 2, etc)\n"      "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
+      inline static const char* const TargetId = "";
 
 
-      GetQzssEphBoolParamForEachSVResult();
 
-      GetQzssEphBoolParamForEachSVResult(const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {});
+          GetQzssEphBoolParamForEachSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetQzssEphBoolParamForEachSVResult(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {});
+          GetQzssEphBoolParamForEachSVResult(const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetQzssEphBoolParamForEachSVResultPtr create(const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {});
+            setParamName(paramName);
+            setVal(val);
+            setDataSetName(dataSetName);
+          }
 
-      static GetQzssEphBoolParamForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {});
-      static GetQzssEphBoolParamForEachSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetQzssEphBoolParamForEachSVResult(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** paramName ****
-      std::string paramName() const;
-      void setParamName(const std::string& paramName);
-
-
-      // **** val ****
-      std::vector<bool> val() const;
-      void setVal(const std::vector<bool>& val);
+            setParamName(paramName);
+            setVal(val);
+            setDataSetName(dataSetName);
+          }
 
 
-      // **** dataSetName ****
-      std::optional<std::string> dataSetName() const;
-      void setDataSetName(const std::optional<std::string>& dataSetName);
+
+          static GetQzssEphBoolParamForEachSVResultPtr create(const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<GetQzssEphBoolParamForEachSVResult>(paramName, val, dataSetName);
+          }
+
+          static GetQzssEphBoolParamForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<bool>& val, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<GetQzssEphBoolParamForEachSVResult>(relatedCommand, paramName, val, dataSetName);
+          }
+
+      static GetQzssEphBoolParamForEachSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetQzssEphBoolParamForEachSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["ParamName"])
+                  && parse_json<std::vector<bool>>::is_valid(m_values["Val"])
+                  && parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"ParamName", "Val", "DataSetName"}; 
+        return names; 
+      }
+      
+
+
+          std::string paramName() const
+          {
+            return parse_json<std::string>::parse(m_values["ParamName"]);
+          }
+
+          void setParamName(const std::string& paramName)
+          {
+            m_values.AddMember("ParamName", parse_json<std::string>::format(paramName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<bool> val() const
+          {
+            return parse_json<std::vector<bool>>::parse(m_values["Val"]);
+          }
+
+          void setVal(const std::vector<bool>& val)
+          {
+            m_values.AddMember("Val", parse_json<std::vector<bool>>::format(val, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<std::string> dataSetName() const
+          {
+            return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
+          }
+
+          void setDataSetName(const std::optional<std::string>& dataSetName)
+          {
+            m_values.AddMember("DataSetName", parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetQzssEphBoolParamForEachSVResult);
+    REGISTER_COMMAND_TO_FACTORY(GetQzssEphBoolParamForEachSVResult);
   }
 }
 

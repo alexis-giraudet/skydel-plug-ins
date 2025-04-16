@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -28,29 +28,70 @@ namespace Sdx
     class GetSignalPowerOffset : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSignalPowerOffset";
+      inline static const char* const Documentation = "Get power offset default value for the signal given in argument\n"      "\n"      "Name   Type   Description\n"      "------ ------ ----------------------------------------------------------------------------------------------------\n"      "Signal string Accepted signal keys: \"L1CA\", \"L1C\", \"L1P\", \"L1ME\", \"L1MR\", \"L2C\", \"L2P\", \"L2ME\", \"L2MR\", \"L5\",\n"      "                                    \"G1\", \"G2\", \"E1\", \"E1PRS\", \"E5a\", \"E5b\", \"E6BC\", \"E6PRS\",\n"      "                                    \"B1\", \"B2\", \"B1C\", \"B2a\", \"B3I\", \"QZSSL1CA\", \"QZSSL1CB\", \"QZSSL1C\", \"QZSSL2C\",\n"      "                                    \"QZSSL5\", \"QZSSL1S\", \"QZSSL5S\", \"QZSSL6\", \"NAVICL1\", \"NAVICL5\", \"NAVICS\",\n"      "                                    \"PULSARXL\", \"PULSARX1\", \"PULSARX5\"";
+      inline static const char* const TargetId = "";
 
 
-      GetSignalPowerOffset();
 
-      GetSignalPowerOffset(const std::string& signal);
+          GetSignalPowerOffset()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetSignalPowerOffsetPtr create(const std::string& signal);
-      static GetSignalPowerOffsetPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSignalPowerOffset(const std::string& signal)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setSignal(signal);
+          }
 
 
-      // **** signal ****
-      std::string signal() const;
-      void setSignal(const std::string& signal);
+          static GetSignalPowerOffsetPtr create(const std::string& signal)
+          {
+            return std::make_shared<GetSignalPowerOffset>(signal);
+          }
+
+      static GetSignalPowerOffsetPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSignalPowerOffset>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Signal"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Signal"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string signal() const
+          {
+            return parse_json<std::string>::parse(m_values["Signal"]);
+          }
+
+          void setSignal(const std::string& signal)
+          {
+            m_values.AddMember("Signal", parse_json<std::string>::format(signal, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetSignalPowerOffset);
   }
 }
 

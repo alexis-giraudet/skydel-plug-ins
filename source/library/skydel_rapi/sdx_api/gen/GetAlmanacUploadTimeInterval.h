@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -23,22 +23,52 @@ namespace Sdx
     class GetAlmanacUploadTimeInterval : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAlmanacUploadTimeInterval";
+      inline static const char* const Documentation = "Get almanac upload interval in seconds. After the initial upload set with command \n"      "SetAlmanacInitialUploadTimeOffset, the almanac will automatically update at each interval.";
+      inline static const char* const TargetId = "";
 
 
-      GetAlmanacUploadTimeInterval();
 
-      static GetAlmanacUploadTimeIntervalPtr create();
-      static GetAlmanacUploadTimeIntervalPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAlmanacUploadTimeInterval()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetAlmanacUploadTimeIntervalPtr create()
+          {
+            return std::make_shared<GetAlmanacUploadTimeInterval>();
+          }
+
+      static GetAlmanacUploadTimeIntervalPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAlmanacUploadTimeInterval>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetAlmanacUploadTimeInterval);
   }
 }
 

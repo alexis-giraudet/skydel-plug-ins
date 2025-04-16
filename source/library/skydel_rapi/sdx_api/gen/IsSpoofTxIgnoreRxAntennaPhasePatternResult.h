@@ -25,36 +25,92 @@ namespace Sdx
     class IsSpoofTxIgnoreRxAntennaPhasePatternResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsSpoofTxIgnoreRxAntennaPhasePatternResult";
+      inline static const char* const Documentation = "Result of IsSpoofTxIgnoreRxAntennaPhasePattern.\n"      "\n"      "Name   Type   Description\n"      "------ ------ --------------------------------------------------------------\n"      "Ignore bool   If true, the receiver's antenna phase pattern will be ignored.\n"      "Id     string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      IsSpoofTxIgnoreRxAntennaPhasePatternResult();
 
-      IsSpoofTxIgnoreRxAntennaPhasePatternResult(bool ignore, const std::string& id);
+          IsSpoofTxIgnoreRxAntennaPhasePatternResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsSpoofTxIgnoreRxAntennaPhasePatternResult(CommandBasePtr relatedCommand, bool ignore, const std::string& id);
+          IsSpoofTxIgnoreRxAntennaPhasePatternResult(bool ignore, const std::string& id)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr create(bool ignore, const std::string& id);
+            setIgnore(ignore);
+            setId(id);
+          }
 
-      static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr create(CommandBasePtr relatedCommand, bool ignore, const std::string& id);
-      static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsSpoofTxIgnoreRxAntennaPhasePatternResult(CommandBasePtr relatedCommand, bool ignore, const std::string& id)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIgnore(ignore);
+            setId(id);
+          }
 
 
-      // **** ignore ****
-      bool ignore() const;
-      void setIgnore(bool ignore);
+
+          static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr create(bool ignore, const std::string& id)
+          {
+            return std::make_shared<IsSpoofTxIgnoreRxAntennaPhasePatternResult>(ignore, id);
+          }
+
+          static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr create(CommandBasePtr relatedCommand, bool ignore, const std::string& id)
+          {
+            return std::make_shared<IsSpoofTxIgnoreRxAntennaPhasePatternResult>(relatedCommand, ignore, id);
+          }
+
+      static IsSpoofTxIgnoreRxAntennaPhasePatternResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsSpoofTxIgnoreRxAntennaPhasePatternResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Ignore"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Ignore", "Id"}; 
+        return names; 
+      }
+      
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          bool ignore() const
+          {
+            return parse_json<bool>::parse(m_values["Ignore"]);
+          }
+
+          void setIgnore(bool ignore)
+          {
+            m_values.AddMember("Ignore", parse_json<bool>::format(ignore, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsSpoofTxIgnoreRxAntennaPhasePatternResult);
+    REGISTER_COMMAND_TO_FACTORY(IsSpoofTxIgnoreRxAntennaPhasePatternResult);
   }
 }
 

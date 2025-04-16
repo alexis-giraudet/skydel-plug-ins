@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class IsStopMainInstanceWhenWorkerInstanceStop : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsStopMainInstanceWhenWorkerInstanceStop";
+      inline static const char* const Documentation = "If enabled, main instance and all the worker instances will stop if a worker instance stops.";
+      inline static const char* const TargetId = "";
 
 
-      IsStopMainInstanceWhenWorkerInstanceStop();
 
-      static IsStopMainInstanceWhenWorkerInstanceStopPtr create();
-      static IsStopMainInstanceWhenWorkerInstanceStopPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsStopMainInstanceWhenWorkerInstanceStop()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static IsStopMainInstanceWhenWorkerInstanceStopPtr create()
+          {
+            return std::make_shared<IsStopMainInstanceWhenWorkerInstanceStop>();
+          }
+
+      static IsStopMainInstanceWhenWorkerInstanceStopPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsStopMainInstanceWhenWorkerInstanceStop>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsStopMainInstanceWhenWorkerInstanceStop);
   }
 }
 

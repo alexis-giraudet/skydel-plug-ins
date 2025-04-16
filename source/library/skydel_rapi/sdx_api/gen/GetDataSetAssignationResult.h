@@ -26,41 +26,107 @@ namespace Sdx
     class GetDataSetAssignationResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetDataSetAssignationResult";
+      inline static const char* const Documentation = "Result of GetDataSetAssignation.\n"      "\n"      "Name        Type   Description\n"      "----------- ------ -------------------------------------------------------\n"      "System      string \"GPS\", \"Galileo\", \"BeiDou\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "DataSetType string \"Almanac\", \"Ephemeris\" or \"Orbit\"\n"      "DataSetName string The name of the assigned data set.";
+      inline static const char* const TargetId = "";
 
 
-      GetDataSetAssignationResult();
 
-      GetDataSetAssignationResult(const std::string& system, const std::string& dataSetType, const std::string& dataSetName);
+          GetDataSetAssignationResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetDataSetAssignationResult(CommandBasePtr relatedCommand, const std::string& system, const std::string& dataSetType, const std::string& dataSetName);
+          GetDataSetAssignationResult(const std::string& system, const std::string& dataSetType, const std::string& dataSetName)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetDataSetAssignationResultPtr create(const std::string& system, const std::string& dataSetType, const std::string& dataSetName);
+            setSystem(system);
+            setDataSetType(dataSetType);
+            setDataSetName(dataSetName);
+          }
 
-      static GetDataSetAssignationResultPtr create(CommandBasePtr relatedCommand, const std::string& system, const std::string& dataSetType, const std::string& dataSetName);
-      static GetDataSetAssignationResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetDataSetAssignationResult(CommandBasePtr relatedCommand, const std::string& system, const std::string& dataSetType, const std::string& dataSetName)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
-
-
-      // **** dataSetType ****
-      std::string dataSetType() const;
-      void setDataSetType(const std::string& dataSetType);
+            setSystem(system);
+            setDataSetType(dataSetType);
+            setDataSetName(dataSetName);
+          }
 
 
-      // **** dataSetName ****
-      std::string dataSetName() const;
-      void setDataSetName(const std::string& dataSetName);
+
+          static GetDataSetAssignationResultPtr create(const std::string& system, const std::string& dataSetType, const std::string& dataSetName)
+          {
+            return std::make_shared<GetDataSetAssignationResult>(system, dataSetType, dataSetName);
+          }
+
+          static GetDataSetAssignationResultPtr create(CommandBasePtr relatedCommand, const std::string& system, const std::string& dataSetType, const std::string& dataSetName)
+          {
+            return std::make_shared<GetDataSetAssignationResult>(relatedCommand, system, dataSetType, dataSetName);
+          }
+
+      static GetDataSetAssignationResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetDataSetAssignationResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<std::string>::is_valid(m_values["DataSetType"])
+                  && parse_json<std::string>::is_valid(m_values["DataSetName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "DataSetType", "DataSetName"}; 
+        return names; 
+      }
+      
+
+
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string dataSetType() const
+          {
+            return parse_json<std::string>::parse(m_values["DataSetType"]);
+          }
+
+          void setDataSetType(const std::string& dataSetType)
+          {
+            m_values.AddMember("DataSetType", parse_json<std::string>::format(dataSetType, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string dataSetName() const
+          {
+            return parse_json<std::string>::parse(m_values["DataSetName"]);
+          }
+
+          void setDataSetName(const std::string& dataSetName)
+          {
+            m_values.AddMember("DataSetName", parse_json<std::string>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetDataSetAssignationResult);
+    REGISTER_COMMAND_TO_FACTORY(GetDataSetAssignationResult);
   }
 }
 

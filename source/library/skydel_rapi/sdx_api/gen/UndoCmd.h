@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class UndoCmd : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "UndoCmd";
+      inline static const char* const Documentation = "Undo the last command like Ctrl+Z in the UI";
+      inline static const char* const TargetId = "";
 
 
-      UndoCmd();
 
-      static UndoCmdPtr create();
-      static UndoCmdPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          UndoCmd()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static UndoCmdPtr create()
+          {
+            return std::make_shared<UndoCmd>();
+          }
+
+      static UndoCmdPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<UndoCmd>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(UndoCmd);
   }
 }
 

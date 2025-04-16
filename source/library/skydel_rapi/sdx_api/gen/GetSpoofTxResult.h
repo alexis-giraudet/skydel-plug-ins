@@ -28,51 +28,137 @@ namespace Sdx
     class GetSpoofTxResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSpoofTxResult";
+      inline static const char* const Documentation = "Result of GetSpoofTx.\n"      "\n"      "Name       Type   Description\n"      "---------- ------ ------------------------------------------------\n"      "UsualName  string Usual name for the transmitter.\n"      "Enabled    bool   Enable (true) or disable (false) the transmitter\n"      "Address    string Remote instance IP address.\n"      "InstanceId int    Remote instance ID.\n"      "Id         string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      GetSpoofTxResult();
 
-      GetSpoofTxResult(const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id);
+          GetSpoofTxResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetSpoofTxResult(CommandBasePtr relatedCommand, const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id);
+          GetSpoofTxResult(const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetSpoofTxResultPtr create(const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id);
+            setUsualName(usualName);
+            setEnabled(enabled);
+            setAddress(address);
+            setInstanceId(instanceId);
+            setId(id);
+          }
 
-      static GetSpoofTxResultPtr create(CommandBasePtr relatedCommand, const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id);
-      static GetSpoofTxResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSpoofTxResult(CommandBasePtr relatedCommand, const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** usualName ****
-      std::string usualName() const;
-      void setUsualName(const std::string& usualName);
-
-
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
-
-
-      // **** address ****
-      std::string address() const;
-      void setAddress(const std::string& address);
+            setUsualName(usualName);
+            setEnabled(enabled);
+            setAddress(address);
+            setInstanceId(instanceId);
+            setId(id);
+          }
 
 
-      // **** instanceId ****
-      int instanceId() const;
-      void setInstanceId(int instanceId);
+
+          static GetSpoofTxResultPtr create(const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id)
+          {
+            return std::make_shared<GetSpoofTxResult>(usualName, enabled, address, instanceId, id);
+          }
+
+          static GetSpoofTxResultPtr create(CommandBasePtr relatedCommand, const std::string& usualName, bool enabled, const std::string& address, int instanceId, const std::string& id)
+          {
+            return std::make_shared<GetSpoofTxResult>(relatedCommand, usualName, enabled, address, instanceId, id);
+          }
+
+      static GetSpoofTxResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSpoofTxResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["UsualName"])
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                  && parse_json<std::string>::is_valid(m_values["Address"])
+                  && parse_json<int>::is_valid(m_values["InstanceId"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"UsualName", "Enabled", "Address", "InstanceId", "Id"}; 
+        return names; 
+      }
+      
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          std::string usualName() const
+          {
+            return parse_json<std::string>::parse(m_values["UsualName"]);
+          }
+
+          void setUsualName(const std::string& usualName)
+          {
+            m_values.AddMember("UsualName", parse_json<std::string>::format(usualName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string address() const
+          {
+            return parse_json<std::string>::parse(m_values["Address"]);
+          }
+
+          void setAddress(const std::string& address)
+          {
+            m_values.AddMember("Address", parse_json<std::string>::format(address, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int instanceId() const
+          {
+            return parse_json<int>::parse(m_values["InstanceId"]);
+          }
+
+          void setInstanceId(int instanceId)
+          {
+            m_values.AddMember("InstanceId", parse_json<int>::format(instanceId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetSpoofTxResult);
+    REGISTER_COMMAND_TO_FACTORY(GetSpoofTxResult);
   }
 }
 

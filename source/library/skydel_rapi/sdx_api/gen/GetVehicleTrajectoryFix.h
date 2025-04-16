@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class GetVehicleTrajectoryFix : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetVehicleTrajectoryFix";
+      inline static const char* const Documentation = "Get vehicle static position and orientation";
+      inline static const char* const TargetId = "";
 
 
-      GetVehicleTrajectoryFix();
 
-      static GetVehicleTrajectoryFixPtr create();
-      static GetVehicleTrajectoryFixPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetVehicleTrajectoryFix()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetVehicleTrajectoryFixPtr create()
+          {
+            return std::make_shared<GetVehicleTrajectoryFix>();
+          }
+
+      static GetVehicleTrajectoryFixPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetVehicleTrajectoryFix>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetVehicleTrajectoryFix);
   }
 }
 

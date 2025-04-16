@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class SetSpoofTxIgnoreRxAntennaGainPattern : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetSpoofTxIgnoreRxAntennaGainPattern";
+      inline static const char* const Documentation = "Set whether a spoofer should ignore the receiver's antenna gain pattern.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -------------------------------------------------------------\n"      "Ignore bool   If true, the receiver's antenna gain pattern will be ignored.\n"      "Id     string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      SetSpoofTxIgnoreRxAntennaGainPattern();
 
-      SetSpoofTxIgnoreRxAntennaGainPattern(bool ignore, const std::string& id);
+          SetSpoofTxIgnoreRxAntennaGainPattern()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetSpoofTxIgnoreRxAntennaGainPatternPtr create(bool ignore, const std::string& id);
-      static SetSpoofTxIgnoreRxAntennaGainPatternPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetSpoofTxIgnoreRxAntennaGainPattern(bool ignore, const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** ignore ****
-      bool ignore() const;
-      void setIgnore(bool ignore);
+            setIgnore(ignore);
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static SetSpoofTxIgnoreRxAntennaGainPatternPtr create(bool ignore, const std::string& id)
+          {
+            return std::make_shared<SetSpoofTxIgnoreRxAntennaGainPattern>(ignore, id);
+          }
+
+      static SetSpoofTxIgnoreRxAntennaGainPatternPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetSpoofTxIgnoreRxAntennaGainPattern>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Ignore"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Ignore", "Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
+
+
+          bool ignore() const
+          {
+            return parse_json<bool>::parse(m_values["Ignore"]);
+          }
+
+          void setIgnore(bool ignore)
+          {
+            m_values.AddMember("Ignore", parse_json<bool>::format(ignore, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetSpoofTxIgnoreRxAntennaGainPattern);
   }
 }
 

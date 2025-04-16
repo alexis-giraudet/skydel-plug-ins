@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class WaitAndResetPPS : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "WaitAndResetPPS";
+      inline static const char* const Documentation = "Ask Skydel to reset its PPS counter.";
+      inline static const char* const TargetId = "";
 
 
-      WaitAndResetPPS();
 
-      static WaitAndResetPPSPtr create();
-      static WaitAndResetPPSPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          WaitAndResetPPS()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static WaitAndResetPPSPtr create()
+          {
+            return std::make_shared<WaitAndResetPPS>();
+          }
+
+      static WaitAndResetPPSPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<WaitAndResetPPS>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(WaitAndResetPPS);
   }
 }
 

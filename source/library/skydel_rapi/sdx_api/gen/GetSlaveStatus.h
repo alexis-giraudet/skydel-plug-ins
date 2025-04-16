@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,26 +24,57 @@ namespace Sdx
     class GetSlaveStatus : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSlaveStatus";
+      inline static const char* const Documentation = "Please note the command GetSlaveStatus is deprecated since 23.11. You may use GetWorkerInstanceStatus.\n"      "\n"      "Request for the slave status, returns a GetSlaveStatusResult";
+      inline static const char* const TargetId = "";
 
-      static const char* const Deprecated;
+      inline static const char* const Deprecated = "Please note the command GetSlaveStatus is deprecated since 23.11. You may use GetWorkerInstanceStatus.";
 
 
-      GetSlaveStatus();
 
-      static GetSlaveStatusPtr create();
-      static GetSlaveStatusPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSlaveStatus()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual std::optional<std::string> deprecated() const override;
+          }
 
-      virtual int executePermission() const override;
+
+          static GetSlaveStatusPtr create()
+          {
+            return std::make_shared<GetSlaveStatus>();
+          }
+
+      static GetSlaveStatusPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSlaveStatus>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+          std::optional<std::string> deprecated() const { return std::optional<std::string>{Deprecated}; }
+
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetSlaveStatus);
   }
 }
 

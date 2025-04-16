@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class RemoveMultipath : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "RemoveMultipath";
+      inline static const char* const Documentation = "Removes a multipath signal.\n"      "\n"      "Name Type   Description\n"      "---- ------ ----------------------------------------------------\n"      "Id   string Unique identifier of the multipath signal to remove.";
+      inline static const char* const TargetId = "";
 
 
-      RemoveMultipath();
 
-      RemoveMultipath(const std::string& id);
+          RemoveMultipath()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static RemoveMultipathPtr create(const std::string& id);
-      static RemoveMultipathPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          RemoveMultipath(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static RemoveMultipathPtr create(const std::string& id)
+          {
+            return std::make_shared<RemoveMultipath>(id);
+          }
+
+      static RemoveMultipathPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<RemoveMultipath>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING | EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(RemoveMultipath);
   }
 }
 

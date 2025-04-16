@@ -25,36 +25,92 @@ namespace Sdx
     class GetIntTxHiddenOnMapResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetIntTxHiddenOnMapResult";
+      inline static const char* const Documentation = "Result of GetIntTxHiddenOnMap.\n"      "\n"      "Name        Type   Description\n"      "----------- ------ -----------------------------------------------\n"      "HiddenOnMap bool   If true, transmitter will be hidden on the map.\n"      "Id          string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      GetIntTxHiddenOnMapResult();
 
-      GetIntTxHiddenOnMapResult(bool hiddenOnMap, const std::string& id);
+          GetIntTxHiddenOnMapResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetIntTxHiddenOnMapResult(CommandBasePtr relatedCommand, bool hiddenOnMap, const std::string& id);
+          GetIntTxHiddenOnMapResult(bool hiddenOnMap, const std::string& id)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetIntTxHiddenOnMapResultPtr create(bool hiddenOnMap, const std::string& id);
+            setHiddenOnMap(hiddenOnMap);
+            setId(id);
+          }
 
-      static GetIntTxHiddenOnMapResultPtr create(CommandBasePtr relatedCommand, bool hiddenOnMap, const std::string& id);
-      static GetIntTxHiddenOnMapResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetIntTxHiddenOnMapResult(CommandBasePtr relatedCommand, bool hiddenOnMap, const std::string& id)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setHiddenOnMap(hiddenOnMap);
+            setId(id);
+          }
 
 
-      // **** hiddenOnMap ****
-      bool hiddenOnMap() const;
-      void setHiddenOnMap(bool hiddenOnMap);
+
+          static GetIntTxHiddenOnMapResultPtr create(bool hiddenOnMap, const std::string& id)
+          {
+            return std::make_shared<GetIntTxHiddenOnMapResult>(hiddenOnMap, id);
+          }
+
+          static GetIntTxHiddenOnMapResultPtr create(CommandBasePtr relatedCommand, bool hiddenOnMap, const std::string& id)
+          {
+            return std::make_shared<GetIntTxHiddenOnMapResult>(relatedCommand, hiddenOnMap, id);
+          }
+
+      static GetIntTxHiddenOnMapResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetIntTxHiddenOnMapResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["HiddenOnMap"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"HiddenOnMap", "Id"}; 
+        return names; 
+      }
+      
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          bool hiddenOnMap() const
+          {
+            return parse_json<bool>::parse(m_values["HiddenOnMap"]);
+          }
+
+          void setHiddenOnMap(bool hiddenOnMap)
+          {
+            m_values.AddMember("HiddenOnMap", parse_json<bool>::format(hiddenOnMap, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetIntTxHiddenOnMapResult);
+    REGISTER_COMMAND_TO_FACTORY(GetIntTxHiddenOnMapResult);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -27,34 +27,84 @@ namespace Sdx
     class SetIonoGridGIVEIAll : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetIonoGridGIVEIAll";
+      inline static const char* const Documentation = "Set GIVEI in the ionospheric grid.  The array is zero based, the index 0 in a band array is for the IGP with an index 1, etc.\n"      "\n"      "Name            Type            Description\n"      "--------------- --------------- ----------------------------------------------------------------------\n"      "Grid            array array int Array containing each band, each band is an array containing the GIVEI\n"      "ServiceProvider optional string The service provider (optional)";
+      inline static const char* const TargetId = "";
 
 
-      SetIonoGridGIVEIAll();
 
-      SetIonoGridGIVEIAll(const std::vector<std::vector<int>>& grid, const std::optional<std::string>& serviceProvider = {});
+          SetIonoGridGIVEIAll()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetIonoGridGIVEIAllPtr create(const std::vector<std::vector<int>>& grid, const std::optional<std::string>& serviceProvider = {});
-      static SetIonoGridGIVEIAllPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetIonoGridGIVEIAll(const std::vector<std::vector<int>>& grid, const std::optional<std::string>& serviceProvider = {})
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** grid ****
-      std::vector<std::vector<int>> grid() const;
-      void setGrid(const std::vector<std::vector<int>>& grid);
+            setGrid(grid);
+            setServiceProvider(serviceProvider);
+          }
 
 
-      // **** serviceProvider ****
-      std::optional<std::string> serviceProvider() const;
-      void setServiceProvider(const std::optional<std::string>& serviceProvider);
+          static SetIonoGridGIVEIAllPtr create(const std::vector<std::vector<int>>& grid, const std::optional<std::string>& serviceProvider = {})
+          {
+            return std::make_shared<SetIonoGridGIVEIAll>(grid, serviceProvider);
+          }
+
+      static SetIonoGridGIVEIAllPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetIonoGridGIVEIAll>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<std::vector<int>>>::is_valid(m_values["Grid"])
+                  && parse_json<std::optional<std::string>>::is_valid(m_values["ServiceProvider"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Grid", "ServiceProvider"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::vector<std::vector<int>> grid() const
+          {
+            return parse_json<std::vector<std::vector<int>>>::parse(m_values["Grid"]);
+          }
+
+          void setGrid(const std::vector<std::vector<int>>& grid)
+          {
+            m_values.AddMember("Grid", parse_json<std::vector<std::vector<int>>>::format(grid, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<std::string> serviceProvider() const
+          {
+            return parse_json<std::optional<std::string>>::parse(m_values["ServiceProvider"]);
+          }
+
+          void setServiceProvider(const std::optional<std::string>& serviceProvider)
+          {
+            m_values.AddMember("ServiceProvider", parse_json<std::optional<std::string>>::format(serviceProvider, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetIonoGridGIVEIAll);
   }
 }
 

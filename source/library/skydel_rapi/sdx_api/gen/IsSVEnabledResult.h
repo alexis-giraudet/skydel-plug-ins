@@ -26,41 +26,107 @@ namespace Sdx
     class IsSVEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsSVEnabledResult";
+      inline static const char* const Documentation = "Result of IsSVEnabled.\n"      "\n"      "Name    Type   Description\n"      "------- ------ ----------------------------------------------------------------------------------------------------------------\n"      "System  string The satellite's constellation. Can be \"GPS\", \"GLONASS\", \"Galileo\", \"BeiDou\", \"SBAS\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "SvId    int    The satellite's SV ID (use 0 for all SVs).\n"      "Enabled bool   The satellite will be present/absent from the constellation";
+      inline static const char* const TargetId = "";
 
 
-      IsSVEnabledResult();
 
-      IsSVEnabledResult(const std::string& system, int svId, bool enabled);
+          IsSVEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsSVEnabledResult(CommandBasePtr relatedCommand, const std::string& system, int svId, bool enabled);
+          IsSVEnabledResult(const std::string& system, int svId, bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsSVEnabledResultPtr create(const std::string& system, int svId, bool enabled);
+            setSystem(system);
+            setSvId(svId);
+            setEnabled(enabled);
+          }
 
-      static IsSVEnabledResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, bool enabled);
-      static IsSVEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsSVEnabledResult(CommandBasePtr relatedCommand, const std::string& system, int svId, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+            setSystem(system);
+            setSvId(svId);
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsSVEnabledResultPtr create(const std::string& system, int svId, bool enabled)
+          {
+            return std::make_shared<IsSVEnabledResult>(system, svId, enabled);
+          }
+
+          static IsSVEnabledResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, bool enabled)
+          {
+            return std::make_shared<IsSVEnabledResult>(relatedCommand, system, svId, enabled);
+          }
+
+      static IsSVEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsSVEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "SvId", "Enabled"}; 
+        return names; 
+      }
+      
+
+
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsSVEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsSVEnabledResult);
   }
 }
 

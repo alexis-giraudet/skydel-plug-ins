@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetIonoBdgimAlpha : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetIonoBdgimAlpha";
+      inline static const char* const Documentation = "Get the BeiDou (BDGIM) ionospheric Alpha coefficient (in TECu)\n"      "\n"      "Name  Type Description\n"      "----- ---- ------------------------\n"      "Index int  Coefficient index [1..9]";
+      inline static const char* const TargetId = "";
 
 
-      GetIonoBdgimAlpha();
 
-      GetIonoBdgimAlpha(int index);
+          GetIonoBdgimAlpha()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetIonoBdgimAlphaPtr create(int index);
-      static GetIonoBdgimAlphaPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetIonoBdgimAlpha(int index)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setIndex(index);
+          }
 
 
-      // **** index ****
-      int index() const;
-      void setIndex(int index);
+          static GetIonoBdgimAlphaPtr create(int index)
+          {
+            return std::make_shared<GetIonoBdgimAlpha>(index);
+          }
+
+      static GetIonoBdgimAlphaPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetIonoBdgimAlpha>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Index"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Index"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int index() const
+          {
+            return parse_json<int>::parse(m_values["Index"]);
+          }
+
+          void setIndex(int index)
+          {
+            m_values.AddMember("Index", parse_json<int>::format(index, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetIonoBdgimAlpha);
   }
 }
 

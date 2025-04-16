@@ -27,36 +27,92 @@ namespace Sdx
     class GetGlonassEphDoubleParamForEachSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGlonassEphDoubleParamForEachSVResult";
+      inline static const char* const Documentation = "Result of GetGlonassEphDoubleParamForEachSV.\n"      "\n"      "Name      Type         Description\n"      "--------- ------------ --------------------------------------------------------------------------------------------------\n"      "ParamName string       Refer to SetGlonassEphDoubleParamForSV for accepted names\n"      "Val       array double Parameter value for each satellite. Zero based index (index 0 => SV ID 1, index 1 => SV ID 2, etc)";
+      inline static const char* const TargetId = "";
 
 
-      GetGlonassEphDoubleParamForEachSVResult();
 
-      GetGlonassEphDoubleParamForEachSVResult(const std::string& paramName, const std::vector<double>& val);
+          GetGlonassEphDoubleParamForEachSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetGlonassEphDoubleParamForEachSVResult(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<double>& val);
+          GetGlonassEphDoubleParamForEachSVResult(const std::string& paramName, const std::vector<double>& val)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetGlonassEphDoubleParamForEachSVResultPtr create(const std::string& paramName, const std::vector<double>& val);
+            setParamName(paramName);
+            setVal(val);
+          }
 
-      static GetGlonassEphDoubleParamForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<double>& val);
-      static GetGlonassEphDoubleParamForEachSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGlonassEphDoubleParamForEachSVResult(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<double>& val)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setParamName(paramName);
+            setVal(val);
+          }
 
 
-      // **** paramName ****
-      std::string paramName() const;
-      void setParamName(const std::string& paramName);
+
+          static GetGlonassEphDoubleParamForEachSVResultPtr create(const std::string& paramName, const std::vector<double>& val)
+          {
+            return std::make_shared<GetGlonassEphDoubleParamForEachSVResult>(paramName, val);
+          }
+
+          static GetGlonassEphDoubleParamForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& paramName, const std::vector<double>& val)
+          {
+            return std::make_shared<GetGlonassEphDoubleParamForEachSVResult>(relatedCommand, paramName, val);
+          }
+
+      static GetGlonassEphDoubleParamForEachSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGlonassEphDoubleParamForEachSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["ParamName"])
+                  && parse_json<std::vector<double>>::is_valid(m_values["Val"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"ParamName", "Val"}; 
+        return names; 
+      }
+      
 
 
-      // **** val ****
-      std::vector<double> val() const;
-      void setVal(const std::vector<double>& val);
+          std::string paramName() const
+          {
+            return parse_json<std::string>::parse(m_values["ParamName"]);
+          }
+
+          void setParamName(const std::string& paramName)
+          {
+            m_values.AddMember("ParamName", parse_json<std::string>::format(paramName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<double> val() const
+          {
+            return parse_json<std::vector<double>>::parse(m_values["Val"]);
+          }
+
+          void setVal(const std::vector<double>& val)
+          {
+            m_values.AddMember("Val", parse_json<std::vector<double>>::format(val, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetGlonassEphDoubleParamForEachSVResult);
+    REGISTER_COMMAND_TO_FACTORY(GetGlonassEphDoubleParamForEachSVResult);
   }
 }
 

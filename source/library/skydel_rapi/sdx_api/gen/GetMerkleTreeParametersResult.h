@@ -31,51 +31,137 @@ namespace Sdx
     class GetMerkleTreeParametersResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetMerkleTreeParametersResult";
+      inline static const char* const Documentation = "Result of GetMerkleTreeParameters.\n"      "\n"      "Name               Type              Description\n"      "------------------ ----------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"      "Id                 string            Merkle Tree unique identifier. Automatically set for new Merkle Trees.\n"      "KeyType            string            Type of Key used to generate the Merkle Tree. Key Type is the same for all Merkle Tree Public Keys. Key types are : \"ECDSA P-256/SHA-256\" and \"ECDSA P-521/SHA-512\".\n"      "                                     Modifying the Merkle Tree Keys Type will regenerate the Public Keys and Tree Nodes.\n"      "HashFunction       string            Hash function used to generate the Merkle Tree. Hash functions are : \"SHA-256\", \"SHA3-224\" and \"SHA3-256\".\n"      "BeginApplicability datetime          Merkle Tree applicability begin date.\n"      "EndApplicability   optional datetime Optional Merkle Tree applicability end date.";
+      inline static const char* const TargetId = "";
 
 
-      GetMerkleTreeParametersResult();
 
-      GetMerkleTreeParametersResult(const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {});
+          GetMerkleTreeParametersResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetMerkleTreeParametersResult(CommandBasePtr relatedCommand, const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {});
+          GetMerkleTreeParametersResult(const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {})
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetMerkleTreeParametersResultPtr create(const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {});
+            setId(id);
+            setKeyType(keyType);
+            setHashFunction(hashFunction);
+            setBeginApplicability(beginApplicability);
+            setEndApplicability(endApplicability);
+          }
 
-      static GetMerkleTreeParametersResultPtr create(CommandBasePtr relatedCommand, const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {});
-      static GetMerkleTreeParametersResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetMerkleTreeParametersResult(CommandBasePtr relatedCommand, const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {})
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
-
-
-      // **** keyType ****
-      std::string keyType() const;
-      void setKeyType(const std::string& keyType);
-
-
-      // **** hashFunction ****
-      std::string hashFunction() const;
-      void setHashFunction(const std::string& hashFunction);
+            setId(id);
+            setKeyType(keyType);
+            setHashFunction(hashFunction);
+            setBeginApplicability(beginApplicability);
+            setEndApplicability(endApplicability);
+          }
 
 
-      // **** beginApplicability ****
-      Sdx::DateTime beginApplicability() const;
-      void setBeginApplicability(const Sdx::DateTime& beginApplicability);
+
+          static GetMerkleTreeParametersResultPtr create(const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {})
+          {
+            return std::make_shared<GetMerkleTreeParametersResult>(id, keyType, hashFunction, beginApplicability, endApplicability);
+          }
+
+          static GetMerkleTreeParametersResultPtr create(CommandBasePtr relatedCommand, const std::string& id, const std::string& keyType, const std::string& hashFunction, const Sdx::DateTime& beginApplicability, const std::optional<Sdx::DateTime>& endApplicability = {})
+          {
+            return std::make_shared<GetMerkleTreeParametersResult>(relatedCommand, id, keyType, hashFunction, beginApplicability, endApplicability);
+          }
+
+      static GetMerkleTreeParametersResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetMerkleTreeParametersResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                  && parse_json<std::string>::is_valid(m_values["KeyType"])
+                  && parse_json<std::string>::is_valid(m_values["HashFunction"])
+                  && parse_json<Sdx::DateTime>::is_valid(m_values["BeginApplicability"])
+                  && parse_json<std::optional<Sdx::DateTime>>::is_valid(m_values["EndApplicability"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id", "KeyType", "HashFunction", "BeginApplicability", "EndApplicability"}; 
+        return names; 
+      }
+      
 
 
-      // **** endApplicability ****
-      std::optional<Sdx::DateTime> endApplicability() const;
-      void setEndApplicability(const std::optional<Sdx::DateTime>& endApplicability);
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string keyType() const
+          {
+            return parse_json<std::string>::parse(m_values["KeyType"]);
+          }
+
+          void setKeyType(const std::string& keyType)
+          {
+            m_values.AddMember("KeyType", parse_json<std::string>::format(keyType, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string hashFunction() const
+          {
+            return parse_json<std::string>::parse(m_values["HashFunction"]);
+          }
+
+          void setHashFunction(const std::string& hashFunction)
+          {
+            m_values.AddMember("HashFunction", parse_json<std::string>::format(hashFunction, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          Sdx::DateTime beginApplicability() const
+          {
+            return parse_json<Sdx::DateTime>::parse(m_values["BeginApplicability"]);
+          }
+
+          void setBeginApplicability(const Sdx::DateTime& beginApplicability)
+          {
+            m_values.AddMember("BeginApplicability", parse_json<Sdx::DateTime>::format(beginApplicability, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<Sdx::DateTime> endApplicability() const
+          {
+            return parse_json<std::optional<Sdx::DateTime>>::parse(m_values["EndApplicability"]);
+          }
+
+          void setEndApplicability(const std::optional<Sdx::DateTime>& endApplicability)
+          {
+            m_values.AddMember("EndApplicability", parse_json<std::optional<Sdx::DateTime>>::format(endApplicability, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetMerkleTreeParametersResult);
+    REGISTER_COMMAND_TO_FACTORY(GetMerkleTreeParametersResult);
   }
 }
 

@@ -25,36 +25,92 @@ namespace Sdx
     class IsOsnmaEnabledForSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsOsnmaEnabledForSVResult";
+      inline static const char* const Documentation = "Result of IsOsnmaEnabledForSV.\n"      "\n"      "Name    Type Description\n"      "------- ---- -----------------------------------------------------------\n"      "SvId    int  The satellite's SV ID (use 0 for all Galileo's satellites).\n"      "Enabled bool OSNMA is enabled when value is True.";
+      inline static const char* const TargetId = "";
 
 
-      IsOsnmaEnabledForSVResult();
 
-      IsOsnmaEnabledForSVResult(int svId, bool enabled);
+          IsOsnmaEnabledForSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsOsnmaEnabledForSVResult(CommandBasePtr relatedCommand, int svId, bool enabled);
+          IsOsnmaEnabledForSVResult(int svId, bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsOsnmaEnabledForSVResultPtr create(int svId, bool enabled);
+            setSvId(svId);
+            setEnabled(enabled);
+          }
 
-      static IsOsnmaEnabledForSVResultPtr create(CommandBasePtr relatedCommand, int svId, bool enabled);
-      static IsOsnmaEnabledForSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsOsnmaEnabledForSVResult(CommandBasePtr relatedCommand, int svId, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSvId(svId);
+            setEnabled(enabled);
+          }
 
 
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+
+          static IsOsnmaEnabledForSVResultPtr create(int svId, bool enabled)
+          {
+            return std::make_shared<IsOsnmaEnabledForSVResult>(svId, enabled);
+          }
+
+          static IsOsnmaEnabledForSVResultPtr create(CommandBasePtr relatedCommand, int svId, bool enabled)
+          {
+            return std::make_shared<IsOsnmaEnabledForSVResult>(relatedCommand, svId, enabled);
+          }
+
+      static IsOsnmaEnabledForSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsOsnmaEnabledForSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId", "Enabled"}; 
+        return names; 
+      }
+      
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsOsnmaEnabledForSVResult);
+    REGISTER_COMMAND_TO_FACTORY(IsOsnmaEnabledForSVResult);
   }
 }
 

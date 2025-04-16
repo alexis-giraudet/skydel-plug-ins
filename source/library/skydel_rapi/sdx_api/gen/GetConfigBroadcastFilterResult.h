@@ -25,31 +25,77 @@ namespace Sdx
     class GetConfigBroadcastFilterResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetConfigBroadcastFilterResult";
+      inline static const char* const Documentation = "Result of GetConfigBroadcastFilter.\n"      "\n"      "Name   Type               Description\n"      "------ ------------------ ------------------------------------------------------------------------------\n"      "Filter array ConfigFilter Every configuration section set in this array will be excluded from broadcast.";
+      inline static const char* const TargetId = "";
 
 
-      GetConfigBroadcastFilterResult();
 
-      GetConfigBroadcastFilterResult(const std::vector<Sdx::ConfigFilter>& filter);
+          GetConfigBroadcastFilterResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetConfigBroadcastFilterResult(CommandBasePtr relatedCommand, const std::vector<Sdx::ConfigFilter>& filter);
+          GetConfigBroadcastFilterResult(const std::vector<Sdx::ConfigFilter>& filter)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetConfigBroadcastFilterResultPtr create(const std::vector<Sdx::ConfigFilter>& filter);
+            setFilter(filter);
+          }
 
-      static GetConfigBroadcastFilterResultPtr create(CommandBasePtr relatedCommand, const std::vector<Sdx::ConfigFilter>& filter);
-      static GetConfigBroadcastFilterResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetConfigBroadcastFilterResult(CommandBasePtr relatedCommand, const std::vector<Sdx::ConfigFilter>& filter)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setFilter(filter);
+          }
 
 
-      // **** filter ****
-      std::vector<Sdx::ConfigFilter> filter() const;
-      void setFilter(const std::vector<Sdx::ConfigFilter>& filter);
+
+          static GetConfigBroadcastFilterResultPtr create(const std::vector<Sdx::ConfigFilter>& filter)
+          {
+            return std::make_shared<GetConfigBroadcastFilterResult>(filter);
+          }
+
+          static GetConfigBroadcastFilterResultPtr create(CommandBasePtr relatedCommand, const std::vector<Sdx::ConfigFilter>& filter)
+          {
+            return std::make_shared<GetConfigBroadcastFilterResult>(relatedCommand, filter);
+          }
+
+      static GetConfigBroadcastFilterResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetConfigBroadcastFilterResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<Sdx::ConfigFilter>>::is_valid(m_values["Filter"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Filter"}; 
+        return names; 
+      }
+      
+
+
+          std::vector<Sdx::ConfigFilter> filter() const
+          {
+            return parse_json<std::vector<Sdx::ConfigFilter>>::parse(m_values["Filter"]);
+          }
+
+          void setFilter(const std::vector<Sdx::ConfigFilter>& filter)
+          {
+            m_values.AddMember("Filter", parse_json<std::vector<Sdx::ConfigFilter>>::format(filter, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetConfigBroadcastFilterResult);
+    REGISTER_COMMAND_TO_FACTORY(GetConfigBroadcastFilterResult);
   }
 }
 

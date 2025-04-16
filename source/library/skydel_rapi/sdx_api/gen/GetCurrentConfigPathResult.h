@@ -24,31 +24,77 @@ namespace Sdx
     class GetCurrentConfigPathResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetCurrentConfigPathResult";
+      inline static const char* const Documentation = "Result of GetCurrentConfigPath.\n"      "\n"      "Name       Type   Description\n"      "---------- ------ ----------------------------------------------\n"      "ConfigPath string The config file path currently used by Skydel.";
+      inline static const char* const TargetId = "";
 
 
-      GetCurrentConfigPathResult();
 
-      GetCurrentConfigPathResult(const std::string& configPath);
+          GetCurrentConfigPathResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetCurrentConfigPathResult(CommandBasePtr relatedCommand, const std::string& configPath);
+          GetCurrentConfigPathResult(const std::string& configPath)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetCurrentConfigPathResultPtr create(const std::string& configPath);
+            setConfigPath(configPath);
+          }
 
-      static GetCurrentConfigPathResultPtr create(CommandBasePtr relatedCommand, const std::string& configPath);
-      static GetCurrentConfigPathResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetCurrentConfigPathResult(CommandBasePtr relatedCommand, const std::string& configPath)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setConfigPath(configPath);
+          }
 
 
-      // **** configPath ****
-      std::string configPath() const;
-      void setConfigPath(const std::string& configPath);
+
+          static GetCurrentConfigPathResultPtr create(const std::string& configPath)
+          {
+            return std::make_shared<GetCurrentConfigPathResult>(configPath);
+          }
+
+          static GetCurrentConfigPathResultPtr create(CommandBasePtr relatedCommand, const std::string& configPath)
+          {
+            return std::make_shared<GetCurrentConfigPathResult>(relatedCommand, configPath);
+          }
+
+      static GetCurrentConfigPathResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetCurrentConfigPathResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["ConfigPath"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"ConfigPath"}; 
+        return names; 
+      }
+      
+
+
+          std::string configPath() const
+          {
+            return parse_json<std::string>::parse(m_values["ConfigPath"]);
+          }
+
+          void setConfigPath(const std::string& configPath)
+          {
+            m_values.AddMember("ConfigPath", parse_json<std::string>::format(configPath, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetCurrentConfigPathResult);
+    REGISTER_COMMAND_TO_FACTORY(GetCurrentConfigPathResult);
   }
 }
 

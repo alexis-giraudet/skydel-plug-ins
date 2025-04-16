@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetStartTimeMode : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetStartTimeMode";
+      inline static const char* const Documentation = "Set the simulation start time mode.\n"      "\n"      "Name Type   Description\n"      "---- ------ ---------------------------------------------------\n"      "Mode string Accepted Modes (\"Custom\", \"Computer\", \"GPS\", \"NTP\")";
+      inline static const char* const TargetId = "";
 
 
-      SetStartTimeMode();
 
-      SetStartTimeMode(const std::string& mode);
+          SetStartTimeMode()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetStartTimeModePtr create(const std::string& mode);
-      static SetStartTimeModePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetStartTimeMode(const std::string& mode)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setMode(mode);
+          }
 
 
-      // **** mode ****
-      std::string mode() const;
-      void setMode(const std::string& mode);
+          static SetStartTimeModePtr create(const std::string& mode)
+          {
+            return std::make_shared<SetStartTimeMode>(mode);
+          }
+
+      static SetStartTimeModePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetStartTimeMode>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Mode"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Mode"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string mode() const
+          {
+            return parse_json<std::string>::parse(m_values["Mode"]);
+          }
+
+          void setMode(const std::string& mode)
+          {
+            m_values.AddMember("Mode", parse_json<std::string>::format(mode, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetStartTimeMode);
   }
 }
 

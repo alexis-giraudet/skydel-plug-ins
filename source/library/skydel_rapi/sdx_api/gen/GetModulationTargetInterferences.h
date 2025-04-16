@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -28,34 +28,84 @@ namespace Sdx
     class GetModulationTargetInterferences : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetModulationTargetInterferences";
+      inline static const char* const Documentation = "Get the specified target and output index to a group of interferences.\n"      "An interference transmitter is mapped to a specific RF output by using the same Interference Group Number.\n"      "Skydel tries to keep the sampling rate as low as possible,\n"      "but it is possible to set constaints with MinRate and MaxRate.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -------------------------\n"      "Output int    Output index (zero based)\n"      "Id     string Target identifier";
+      inline static const char* const TargetId = "";
 
 
-      GetModulationTargetInterferences();
 
-      GetModulationTargetInterferences(int output, const std::string& id);
+          GetModulationTargetInterferences()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetModulationTargetInterferencesPtr create(int output, const std::string& id);
-      static GetModulationTargetInterferencesPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetModulationTargetInterferences(int output, const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** output ****
-      int output() const;
-      void setOutput(int output);
+            setOutput(output);
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static GetModulationTargetInterferencesPtr create(int output, const std::string& id)
+          {
+            return std::make_shared<GetModulationTargetInterferences>(output, id);
+          }
+
+      static GetModulationTargetInterferencesPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetModulationTargetInterferences>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Output"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Output", "Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int output() const
+          {
+            return parse_json<int>::parse(m_values["Output"]);
+          }
+
+          void setOutput(int output)
+          {
+            m_values.AddMember("Output", parse_json<int>::format(output, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetModulationTargetInterferences);
   }
 }
 

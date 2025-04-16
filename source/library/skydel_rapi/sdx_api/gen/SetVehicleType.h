@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetVehicleType : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetVehicleType";
+      inline static const char* const Documentation = "Set vehicle type for Route Trajectory\n"      "\n"      "Name Type   Description\n"      "---- ------ ----------------------------------------------------------\n"      "Type string Vehicle type (\"Ground / Water\" or \"Airborne / Spaceborne\")";
+      inline static const char* const TargetId = "";
 
 
-      SetVehicleType();
 
-      SetVehicleType(const std::string& type);
+          SetVehicleType()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetVehicleTypePtr create(const std::string& type);
-      static SetVehicleTypePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetVehicleType(const std::string& type)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setType(type);
+          }
 
 
-      // **** type ****
-      std::string type() const;
-      void setType(const std::string& type);
+          static SetVehicleTypePtr create(const std::string& type)
+          {
+            return std::make_shared<SetVehicleType>(type);
+          }
+
+      static SetVehicleTypePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetVehicleType>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Type"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string type() const
+          {
+            return parse_json<std::string>::parse(m_values["Type"]);
+          }
+
+          void setType(const std::string& type)
+          {
+            m_values.AddMember("Type", parse_json<std::string>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetVehicleType);
   }
 }
 

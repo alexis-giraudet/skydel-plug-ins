@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class IsPYCodeEnabledForSV : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsPYCodeEnabledForSV";
+      inline static const char* const Documentation = "Tells if P(Y)-Code is enabled for the specified satellite.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -----------------------------------------------\n"      "Signal string Accepted signal keys: \"L1P\", \"L2P\"\n"      "SvId   int    The satellite's SV ID 1..32 (use 0 for all SVs)";
+      inline static const char* const TargetId = "";
 
 
-      IsPYCodeEnabledForSV();
 
-      IsPYCodeEnabledForSV(const std::string& signal, int svId);
+          IsPYCodeEnabledForSV()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static IsPYCodeEnabledForSVPtr create(const std::string& signal, int svId);
-      static IsPYCodeEnabledForSVPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsPYCodeEnabledForSV(const std::string& signal, int svId)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** signal ****
-      std::string signal() const;
-      void setSignal(const std::string& signal);
+            setSignal(signal);
+            setSvId(svId);
+          }
 
 
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+          static IsPYCodeEnabledForSVPtr create(const std::string& signal, int svId)
+          {
+            return std::make_shared<IsPYCodeEnabledForSV>(signal, svId);
+          }
+
+      static IsPYCodeEnabledForSVPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsPYCodeEnabledForSV>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Signal"])
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Signal", "SvId"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string signal() const
+          {
+            return parse_json<std::string>::parse(m_values["Signal"]);
+          }
+
+          void setSignal(const std::string& signal)
+          {
+            m_values.AddMember("Signal", parse_json<std::string>::format(signal, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsPYCodeEnabledForSV);
   }
 }
 

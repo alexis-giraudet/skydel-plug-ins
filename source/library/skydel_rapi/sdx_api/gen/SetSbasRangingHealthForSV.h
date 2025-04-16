@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class SetSbasRangingHealthForSV : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetSbasRangingHealthForSV";
+      inline static const char* const Documentation = "Apply ranging flag for a SBAS satellite\n"      "\n"      "Name   Type Description\n"      "------ ---- --------------------------\n"      "SvId   int  The satellite's SV ID\n"      "Health bool The ranging unhealthy flag";
+      inline static const char* const TargetId = "";
 
 
-      SetSbasRangingHealthForSV();
 
-      SetSbasRangingHealthForSV(int svId, bool health);
+          SetSbasRangingHealthForSV()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetSbasRangingHealthForSVPtr create(int svId, bool health);
-      static SetSbasRangingHealthForSVPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetSbasRangingHealthForSV(int svId, bool health)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+            setSvId(svId);
+            setHealth(health);
+          }
 
 
-      // **** health ****
-      bool health() const;
-      void setHealth(bool health);
+          static SetSbasRangingHealthForSVPtr create(int svId, bool health)
+          {
+            return std::make_shared<SetSbasRangingHealthForSV>(svId, health);
+          }
+
+      static SetSbasRangingHealthForSVPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetSbasRangingHealthForSV>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<bool>::is_valid(m_values["Health"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId", "Health"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING | EXECUTE_IF_IDLE;
+          }
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool health() const
+          {
+            return parse_json<bool>::parse(m_values["Health"]);
+          }
+
+          void setHealth(bool health)
+          {
+            m_values.AddMember("Health", parse_json<bool>::format(health, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetSbasRangingHealthForSV);
   }
 }
 

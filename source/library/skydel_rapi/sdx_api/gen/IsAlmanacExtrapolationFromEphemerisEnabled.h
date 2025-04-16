@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class IsAlmanacExtrapolationFromEphemerisEnabled : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsAlmanacExtrapolationFromEphemerisEnabled";
+      inline static const char* const Documentation = "Get state of almanac extrapolation from ephemeris in Dynamic SV data.";
+      inline static const char* const TargetId = "";
 
 
-      IsAlmanacExtrapolationFromEphemerisEnabled();
 
-      static IsAlmanacExtrapolationFromEphemerisEnabledPtr create();
-      static IsAlmanacExtrapolationFromEphemerisEnabledPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsAlmanacExtrapolationFromEphemerisEnabled()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static IsAlmanacExtrapolationFromEphemerisEnabledPtr create()
+          {
+            return std::make_shared<IsAlmanacExtrapolationFromEphemerisEnabled>();
+          }
+
+      static IsAlmanacExtrapolationFromEphemerisEnabledPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsAlmanacExtrapolationFromEphemerisEnabled>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsAlmanacExtrapolationFromEphemerisEnabled);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -23,22 +23,52 @@ namespace Sdx
     class LockGUI : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "LockGUI";
+      inline static const char* const Documentation = "Prevent GUI updates while modify the configuration. Use UnlockGUI when done with\n"      "configuration modifications.";
+      inline static const char* const TargetId = "";
 
 
-      LockGUI();
 
-      static LockGUIPtr create();
-      static LockGUIPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          LockGUI()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static LockGUIPtr create()
+          {
+            return std::make_shared<LockGUI>();
+          }
+
+      static LockGUIPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<LockGUI>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(LockGUI);
   }
 }
 

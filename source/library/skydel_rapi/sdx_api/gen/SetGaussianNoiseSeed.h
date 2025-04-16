@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -26,39 +26,98 @@ namespace Sdx
     class SetGaussianNoiseSeed : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetGaussianNoiseSeed";
+      inline static const char* const Documentation = "Set the seed used to generate the Gaussian Noise. Gaussian Noise must be enabled on the output. It is optional to set the seed of an output. By default, the seed value used is the index of the output.\n"      "\n"      "Name      Type   Description\n"      "--------- ------ -------------------------------------------------------------------------------\n"      "Id        string Target identifier.\n"      "OutputIdx int    RF Output index (zero-based).\n"      "Seed      int    Gaussian Noise seed. Value must be a positive integer between 0 and 2147483647.";
+      inline static const char* const TargetId = "";
 
 
-      SetGaussianNoiseSeed();
 
-      SetGaussianNoiseSeed(const std::string& id, int outputIdx, int seed);
+          SetGaussianNoiseSeed()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetGaussianNoiseSeedPtr create(const std::string& id, int outputIdx, int seed);
-      static SetGaussianNoiseSeedPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetGaussianNoiseSeed(const std::string& id, int outputIdx, int seed)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+            setId(id);
+            setOutputIdx(outputIdx);
+            setSeed(seed);
+          }
 
 
-      // **** outputIdx ****
-      int outputIdx() const;
-      void setOutputIdx(int outputIdx);
+          static SetGaussianNoiseSeedPtr create(const std::string& id, int outputIdx, int seed)
+          {
+            return std::make_shared<SetGaussianNoiseSeed>(id, outputIdx, seed);
+          }
+
+      static SetGaussianNoiseSeedPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetGaussianNoiseSeed>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                  && parse_json<int>::is_valid(m_values["OutputIdx"])
+                  && parse_json<int>::is_valid(m_values["Seed"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id", "OutputIdx", "Seed"}; 
+        return names; 
+      }
+      
 
 
-      // **** seed ****
-      int seed() const;
-      void setSeed(int seed);
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int outputIdx() const
+          {
+            return parse_json<int>::parse(m_values["OutputIdx"]);
+          }
+
+          void setOutputIdx(int outputIdx)
+          {
+            m_values.AddMember("OutputIdx", parse_json<int>::format(outputIdx, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int seed() const
+          {
+            return parse_json<int>::parse(m_values["Seed"]);
+          }
+
+          void setSeed(int seed)
+          {
+            m_values.AddMember("Seed", parse_json<int>::format(seed, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetGaussianNoiseSeed);
   }
 }
 

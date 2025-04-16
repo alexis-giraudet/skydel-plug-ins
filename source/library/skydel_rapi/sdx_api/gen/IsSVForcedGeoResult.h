@@ -29,51 +29,137 @@ namespace Sdx
     class IsSVForcedGeoResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsSVForcedGeoResult";
+      inline static const char* const Documentation = "Result of IsSVForcedGeo.\n"      "\n"      "Name        Type            Description\n"      "----------- --------------- -------------------------------------------------------------------------------------------\n"      "System      string          \"GPS\", \"Galileo\", \"BeiDou\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "SvId        int             The satellite SV ID\n"      "IsGeo       bool            True for geostationary satellite\n"      "Longitude   double          The longitude to use, in degree\n"      "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
+      inline static const char* const TargetId = "";
 
 
-      IsSVForcedGeoResult();
 
-      IsSVForcedGeoResult(const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {});
+          IsSVForcedGeoResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsSVForcedGeoResult(CommandBasePtr relatedCommand, const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {});
+          IsSVForcedGeoResult(const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsSVForcedGeoResultPtr create(const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {});
+            setSystem(system);
+            setSvId(svId);
+            setIsGeo(isGeo);
+            setLongitude(longitude);
+            setDataSetName(dataSetName);
+          }
 
-      static IsSVForcedGeoResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {});
-      static IsSVForcedGeoResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsSVForcedGeoResult(CommandBasePtr relatedCommand, const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
-
-
-      // **** isGeo ****
-      bool isGeo() const;
-      void setIsGeo(bool isGeo);
+            setSystem(system);
+            setSvId(svId);
+            setIsGeo(isGeo);
+            setLongitude(longitude);
+            setDataSetName(dataSetName);
+          }
 
 
-      // **** longitude ****
-      double longitude() const;
-      void setLongitude(double longitude);
+
+          static IsSVForcedGeoResultPtr create(const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<IsSVForcedGeoResult>(system, svId, isGeo, longitude, dataSetName);
+          }
+
+          static IsSVForcedGeoResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, bool isGeo, double longitude, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<IsSVForcedGeoResult>(relatedCommand, system, svId, isGeo, longitude, dataSetName);
+          }
+
+      static IsSVForcedGeoResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsSVForcedGeoResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<bool>::is_valid(m_values["IsGeo"])
+                  && parse_json<double>::is_valid(m_values["Longitude"])
+                  && parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "SvId", "IsGeo", "Longitude", "DataSetName"}; 
+        return names; 
+      }
+      
 
 
-      // **** dataSetName ****
-      std::optional<std::string> dataSetName() const;
-      void setDataSetName(const std::optional<std::string>& dataSetName);
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool isGeo() const
+          {
+            return parse_json<bool>::parse(m_values["IsGeo"]);
+          }
+
+          void setIsGeo(bool isGeo)
+          {
+            m_values.AddMember("IsGeo", parse_json<bool>::format(isGeo, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double longitude() const
+          {
+            return parse_json<double>::parse(m_values["Longitude"]);
+          }
+
+          void setLongitude(double longitude)
+          {
+            m_values.AddMember("Longitude", parse_json<double>::format(longitude, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<std::string> dataSetName() const
+          {
+            return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
+          }
+
+          void setDataSetName(const std::optional<std::string>& dataSetName)
+          {
+            m_values.AddMember("DataSetName", parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsSVForcedGeoResult);
+    REGISTER_COMMAND_TO_FACTORY(IsSVForcedGeoResult);
   }
 }
 

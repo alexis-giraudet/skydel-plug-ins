@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -26,39 +26,98 @@ namespace Sdx
     class SetSpoofTxGpuIdx : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetSpoofTxGpuIdx";
+      inline static const char* const Documentation = "Set the GPU index on which this spoofer signal will be modulated.\n"      "\n"      "Name     Type   Description\n"      "-------- ------ -------------------------------\n"      "GpuIdx   int    The GPU index.\n"      "SignalId int    Spoofer output number, 0-based.\n"      "Id       string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      SetSpoofTxGpuIdx();
 
-      SetSpoofTxGpuIdx(int gpuIdx, int signalId, const std::string& id);
+          SetSpoofTxGpuIdx()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetSpoofTxGpuIdxPtr create(int gpuIdx, int signalId, const std::string& id);
-      static SetSpoofTxGpuIdxPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetSpoofTxGpuIdx(int gpuIdx, int signalId, const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** gpuIdx ****
-      int gpuIdx() const;
-      void setGpuIdx(int gpuIdx);
+            setGpuIdx(gpuIdx);
+            setSignalId(signalId);
+            setId(id);
+          }
 
 
-      // **** signalId ****
-      int signalId() const;
-      void setSignalId(int signalId);
+          static SetSpoofTxGpuIdxPtr create(int gpuIdx, int signalId, const std::string& id)
+          {
+            return std::make_shared<SetSpoofTxGpuIdx>(gpuIdx, signalId, id);
+          }
+
+      static SetSpoofTxGpuIdxPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetSpoofTxGpuIdx>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["GpuIdx"])
+                  && parse_json<int>::is_valid(m_values["SignalId"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"GpuIdx", "SignalId", "Id"}; 
+        return names; 
+      }
+      
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int gpuIdx() const
+          {
+            return parse_json<int>::parse(m_values["GpuIdx"]);
+          }
+
+          void setGpuIdx(int gpuIdx)
+          {
+            m_values.AddMember("GpuIdx", parse_json<int>::format(gpuIdx, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int signalId() const
+          {
+            return parse_json<int>::parse(m_values["SignalId"]);
+          }
+
+          void setSignalId(int signalId)
+          {
+            m_values.AddMember("SignalId", parse_json<int>::format(signalId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetSpoofTxGpuIdx);
   }
 }
 

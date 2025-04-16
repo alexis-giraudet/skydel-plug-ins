@@ -26,41 +26,107 @@ namespace Sdx
     class GetMasterStatusResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetMasterStatusResult";
+      inline static const char* const Documentation = "Result of GetMasterStatus.\n"      "\n"      "Name           Type Description\n"      "-------------- ---- -------------------------------------\n"      "IsMaster       bool True if Skydel is in master mode\n"      "SlaveConnected int  The number of connected slaves\n"      "Port           int  The listening port, 0 if not a master";
+      inline static const char* const TargetId = "";
 
 
-      GetMasterStatusResult();
 
-      GetMasterStatusResult(bool isMaster, int slaveConnected, int port);
+          GetMasterStatusResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetMasterStatusResult(CommandBasePtr relatedCommand, bool isMaster, int slaveConnected, int port);
+          GetMasterStatusResult(bool isMaster, int slaveConnected, int port)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetMasterStatusResultPtr create(bool isMaster, int slaveConnected, int port);
+            setIsMaster(isMaster);
+            setSlaveConnected(slaveConnected);
+            setPort(port);
+          }
 
-      static GetMasterStatusResultPtr create(CommandBasePtr relatedCommand, bool isMaster, int slaveConnected, int port);
-      static GetMasterStatusResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetMasterStatusResult(CommandBasePtr relatedCommand, bool isMaster, int slaveConnected, int port)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** isMaster ****
-      bool isMaster() const;
-      void setIsMaster(bool isMaster);
-
-
-      // **** slaveConnected ****
-      int slaveConnected() const;
-      void setSlaveConnected(int slaveConnected);
+            setIsMaster(isMaster);
+            setSlaveConnected(slaveConnected);
+            setPort(port);
+          }
 
 
-      // **** port ****
-      int port() const;
-      void setPort(int port);
+
+          static GetMasterStatusResultPtr create(bool isMaster, int slaveConnected, int port)
+          {
+            return std::make_shared<GetMasterStatusResult>(isMaster, slaveConnected, port);
+          }
+
+          static GetMasterStatusResultPtr create(CommandBasePtr relatedCommand, bool isMaster, int slaveConnected, int port)
+          {
+            return std::make_shared<GetMasterStatusResult>(relatedCommand, isMaster, slaveConnected, port);
+          }
+
+      static GetMasterStatusResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetMasterStatusResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["IsMaster"])
+                  && parse_json<int>::is_valid(m_values["SlaveConnected"])
+                  && parse_json<int>::is_valid(m_values["Port"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"IsMaster", "SlaveConnected", "Port"}; 
+        return names; 
+      }
+      
+
+
+          bool isMaster() const
+          {
+            return parse_json<bool>::parse(m_values["IsMaster"]);
+          }
+
+          void setIsMaster(bool isMaster)
+          {
+            m_values.AddMember("IsMaster", parse_json<bool>::format(isMaster, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int slaveConnected() const
+          {
+            return parse_json<int>::parse(m_values["SlaveConnected"]);
+          }
+
+          void setSlaveConnected(int slaveConnected)
+          {
+            m_values.AddMember("SlaveConnected", parse_json<int>::format(slaveConnected, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int port() const
+          {
+            return parse_json<int>::parse(m_values["Port"]);
+          }
+
+          void setPort(int port)
+          {
+            m_values.AddMember("Port", parse_json<int>::format(port, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetMasterStatusResult);
+    REGISTER_COMMAND_TO_FACTORY(GetMasterStatusResult);
   }
 }
 

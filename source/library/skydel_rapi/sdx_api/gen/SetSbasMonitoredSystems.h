@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 #include <vector>
 
@@ -25,29 +25,70 @@ namespace Sdx
     class SetSbasMonitoredSystems : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetSbasMonitoredSystems";
+      inline static const char* const Documentation = "Set the systems monitored by SBAS.\n"      "\n"      "Name    Type         Description\n"      "------- ------------ ------------------------------------------------------------------------------------\n"      "Systems array string A list containing the name of monitored systems, only \"GPS\" and \"SBAS\" are supported";
+      inline static const char* const TargetId = "";
 
 
-      SetSbasMonitoredSystems();
 
-      SetSbasMonitoredSystems(const std::vector<std::string>& systems);
+          SetSbasMonitoredSystems()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetSbasMonitoredSystemsPtr create(const std::vector<std::string>& systems);
-      static SetSbasMonitoredSystemsPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetSbasMonitoredSystems(const std::vector<std::string>& systems)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setSystems(systems);
+          }
 
 
-      // **** systems ****
-      std::vector<std::string> systems() const;
-      void setSystems(const std::vector<std::string>& systems);
+          static SetSbasMonitoredSystemsPtr create(const std::vector<std::string>& systems)
+          {
+            return std::make_shared<SetSbasMonitoredSystems>(systems);
+          }
+
+      static SetSbasMonitoredSystemsPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetSbasMonitoredSystems>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<std::string>>::is_valid(m_values["Systems"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Systems"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::vector<std::string> systems() const
+          {
+            return parse_json<std::vector<std::string>>::parse(m_values["Systems"]);
+          }
+
+          void setSystems(const std::vector<std::string>& systems)
+          {
+            m_values.AddMember("Systems", parse_json<std::vector<std::string>>::format(systems, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetSbasMonitoredSystems);
   }
 }
 

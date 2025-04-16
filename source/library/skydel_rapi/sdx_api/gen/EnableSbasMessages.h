@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <vector>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class EnableSbasMessages : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "EnableSbasMessages";
+      inline static const char* const Documentation = "Set the enabled SBAS messages. Message 63 is always enabled\n"      "\n"      "Name     Type      Description\n"      "-------- --------- --------------------\n"      "Messages array int The enabled messages";
+      inline static const char* const TargetId = "";
 
 
-      EnableSbasMessages();
 
-      EnableSbasMessages(const std::vector<int>& messages);
+          EnableSbasMessages()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static EnableSbasMessagesPtr create(const std::vector<int>& messages);
-      static EnableSbasMessagesPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          EnableSbasMessages(const std::vector<int>& messages)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setMessages(messages);
+          }
 
 
-      // **** messages ****
-      std::vector<int> messages() const;
-      void setMessages(const std::vector<int>& messages);
+          static EnableSbasMessagesPtr create(const std::vector<int>& messages)
+          {
+            return std::make_shared<EnableSbasMessages>(messages);
+          }
+
+      static EnableSbasMessagesPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<EnableSbasMessages>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<int>>::is_valid(m_values["Messages"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Messages"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
+
+
+          std::vector<int> messages() const
+          {
+            return parse_json<std::vector<int>>::parse(m_values["Messages"]);
+          }
+
+          void setMessages(const std::vector<int>& messages)
+          {
+            m_values.AddMember("Messages", parse_json<std::vector<int>>::format(messages, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(EnableSbasMessages);
   }
 }
 

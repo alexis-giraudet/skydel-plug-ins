@@ -24,31 +24,77 @@ namespace Sdx
     class GetEngineLatencyResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetEngineLatencyResult";
+      inline static const char* const Documentation = "Result of GetEngineLatency.\n"      "\n"      "Name    Type Description\n"      "------- ---- ----------------------\n"      "Latency int  Engine latency in msec";
+      inline static const char* const TargetId = "";
 
 
-      GetEngineLatencyResult();
 
-      GetEngineLatencyResult(int latency);
+          GetEngineLatencyResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetEngineLatencyResult(CommandBasePtr relatedCommand, int latency);
+          GetEngineLatencyResult(int latency)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetEngineLatencyResultPtr create(int latency);
+            setLatency(latency);
+          }
 
-      static GetEngineLatencyResultPtr create(CommandBasePtr relatedCommand, int latency);
-      static GetEngineLatencyResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetEngineLatencyResult(CommandBasePtr relatedCommand, int latency)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setLatency(latency);
+          }
 
 
-      // **** latency ****
-      int latency() const;
-      void setLatency(int latency);
+
+          static GetEngineLatencyResultPtr create(int latency)
+          {
+            return std::make_shared<GetEngineLatencyResult>(latency);
+          }
+
+          static GetEngineLatencyResultPtr create(CommandBasePtr relatedCommand, int latency)
+          {
+            return std::make_shared<GetEngineLatencyResult>(relatedCommand, latency);
+          }
+
+      static GetEngineLatencyResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetEngineLatencyResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Latency"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Latency"}; 
+        return names; 
+      }
+      
+
+
+          int latency() const
+          {
+            return parse_json<int>::parse(m_values["Latency"]);
+          }
+
+          void setLatency(int latency)
+          {
+            m_values.AddMember("Latency", parse_json<int>::format(latency, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetEngineLatencyResult);
+    REGISTER_COMMAND_TO_FACTORY(GetEngineLatencyResult);
   }
 }
 

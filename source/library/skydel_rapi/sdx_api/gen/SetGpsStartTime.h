@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include "date_time.h"
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetGpsStartTime : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetGpsStartTime";
+      inline static const char* const Documentation = "Set the simulation start date and time\n"      "\n"      "Name  Type     Description\n"      "----- -------- --------------------------------------------------------------\n"      "Start datetime GPS date and time (it is the GPS time expressed in UTC format)";
+      inline static const char* const TargetId = "";
 
 
-      SetGpsStartTime();
 
-      SetGpsStartTime(const Sdx::DateTime& start);
+          SetGpsStartTime()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetGpsStartTimePtr create(const Sdx::DateTime& start);
-      static SetGpsStartTimePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetGpsStartTime(const Sdx::DateTime& start)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setStart(start);
+          }
 
 
-      // **** start ****
-      Sdx::DateTime start() const;
-      void setStart(const Sdx::DateTime& start);
+          static SetGpsStartTimePtr create(const Sdx::DateTime& start)
+          {
+            return std::make_shared<SetGpsStartTime>(start);
+          }
+
+      static SetGpsStartTimePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetGpsStartTime>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<Sdx::DateTime>::is_valid(m_values["Start"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Start"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          Sdx::DateTime start() const
+          {
+            return parse_json<Sdx::DateTime>::parse(m_values["Start"]);
+          }
+
+          void setStart(const Sdx::DateTime& start)
+          {
+            m_values.AddMember("Start", parse_json<Sdx::DateTime>::format(start, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetGpsStartTime);
   }
 }
 

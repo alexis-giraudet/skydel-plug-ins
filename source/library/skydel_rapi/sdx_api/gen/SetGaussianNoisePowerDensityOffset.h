@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -26,39 +26,98 @@ namespace Sdx
     class SetGaussianNoisePowerDensityOffset : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetGaussianNoisePowerDensityOffset";
+      inline static const char* const Documentation = "Set the Noise Power Density Offset (dB/Hz) added to the base Gaussian Noise power density on the GNSS output (-174 dB/Hz). Default offset value is 0. If Gaussian Noise is not enabled on the output, this offset has no effect.\n"      "\n"      "Name               Type   Description\n"      "------------------ ------ -------------------------------------------------------------------------------------\n"      "Id                 string Target identifier\n"      "OutputIdx          int    RF Output index (zero-based)\n"      "PowerDensityOffset double Gaussian Noise power density offset (dB/Hz). Value must be between -10 and +10 dB/Hz.";
+      inline static const char* const TargetId = "";
 
 
-      SetGaussianNoisePowerDensityOffset();
 
-      SetGaussianNoisePowerDensityOffset(const std::string& id, int outputIdx, double powerDensityOffset);
+          SetGaussianNoisePowerDensityOffset()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetGaussianNoisePowerDensityOffsetPtr create(const std::string& id, int outputIdx, double powerDensityOffset);
-      static SetGaussianNoisePowerDensityOffsetPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetGaussianNoisePowerDensityOffset(const std::string& id, int outputIdx, double powerDensityOffset)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+            setId(id);
+            setOutputIdx(outputIdx);
+            setPowerDensityOffset(powerDensityOffset);
+          }
 
 
-      // **** outputIdx ****
-      int outputIdx() const;
-      void setOutputIdx(int outputIdx);
+          static SetGaussianNoisePowerDensityOffsetPtr create(const std::string& id, int outputIdx, double powerDensityOffset)
+          {
+            return std::make_shared<SetGaussianNoisePowerDensityOffset>(id, outputIdx, powerDensityOffset);
+          }
+
+      static SetGaussianNoisePowerDensityOffsetPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetGaussianNoisePowerDensityOffset>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                  && parse_json<int>::is_valid(m_values["OutputIdx"])
+                  && parse_json<double>::is_valid(m_values["PowerDensityOffset"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id", "OutputIdx", "PowerDensityOffset"}; 
+        return names; 
+      }
+      
 
 
-      // **** powerDensityOffset ****
-      double powerDensityOffset() const;
-      void setPowerDensityOffset(double powerDensityOffset);
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int outputIdx() const
+          {
+            return parse_json<int>::parse(m_values["OutputIdx"]);
+          }
+
+          void setOutputIdx(int outputIdx)
+          {
+            m_values.AddMember("OutputIdx", parse_json<int>::format(outputIdx, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double powerDensityOffset() const
+          {
+            return parse_json<double>::parse(m_values["PowerDensityOffset"]);
+          }
+
+          void setPowerDensityOffset(double powerDensityOffset)
+          {
+            m_values.AddMember("PowerDensityOffset", parse_json<double>::format(powerDensityOffset, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetGaussianNoisePowerDensityOffset);
   }
 }
 

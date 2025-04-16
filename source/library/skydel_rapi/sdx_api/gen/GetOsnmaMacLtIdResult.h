@@ -25,31 +25,77 @@ namespace Sdx
     class GetOsnmaMacLtIdResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetOsnmaMacLtIdResult";
+      inline static const char* const Documentation = "Result of GetOsnmaMacLtId.\n"      "\n"      "Name    Type Description\n"      "------- ---- ---------------------------------------------------------------------------------------------------------------------------\n"      "MacLtId int  MAC look-up table ID to get associated ADKD sequences. Accepted IDs are: 27, 28, 31, 33, 34, 35, 36, 37, 38, 39, 40 and 41.\n"      "             Note: The MAC look-up table can be found in Galileo OSNMA SIS ICD v1.1 - ANNEX C MAC Look-up Table.";
+      inline static const char* const TargetId = "";
 
 
-      GetOsnmaMacLtIdResult();
 
-      GetOsnmaMacLtIdResult(int macLtId);
+          GetOsnmaMacLtIdResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetOsnmaMacLtIdResult(CommandBasePtr relatedCommand, int macLtId);
+          GetOsnmaMacLtIdResult(int macLtId)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetOsnmaMacLtIdResultPtr create(int macLtId);
+            setMacLtId(macLtId);
+          }
 
-      static GetOsnmaMacLtIdResultPtr create(CommandBasePtr relatedCommand, int macLtId);
-      static GetOsnmaMacLtIdResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetOsnmaMacLtIdResult(CommandBasePtr relatedCommand, int macLtId)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setMacLtId(macLtId);
+          }
 
 
-      // **** macLtId ****
-      int macLtId() const;
-      void setMacLtId(int macLtId);
+
+          static GetOsnmaMacLtIdResultPtr create(int macLtId)
+          {
+            return std::make_shared<GetOsnmaMacLtIdResult>(macLtId);
+          }
+
+          static GetOsnmaMacLtIdResultPtr create(CommandBasePtr relatedCommand, int macLtId)
+          {
+            return std::make_shared<GetOsnmaMacLtIdResult>(relatedCommand, macLtId);
+          }
+
+      static GetOsnmaMacLtIdResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetOsnmaMacLtIdResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["MacLtId"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"MacLtId"}; 
+        return names; 
+      }
+      
+
+
+          int macLtId() const
+          {
+            return parse_json<int>::parse(m_values["MacLtId"]);
+          }
+
+          void setMacLtId(int macLtId)
+          {
+            m_values.AddMember("MacLtId", parse_json<int>::format(macLtId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetOsnmaMacLtIdResult);
+    REGISTER_COMMAND_TO_FACTORY(GetOsnmaMacLtIdResult);
   }
 }
 

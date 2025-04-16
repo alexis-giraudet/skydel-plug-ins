@@ -25,36 +25,92 @@ namespace Sdx
     class GetAlmanacInitialUploadTimeOffsetResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAlmanacInitialUploadTimeOffsetResult";
+      inline static const char* const Documentation = "Result of GetAlmanacInitialUploadTimeOffset.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -------------------------------------------------------------------------------------------\n"      "System string Must be \"GPS\"\n"      "Offset int    Next upload time in sec (relative to simulation start time). Accepted range is [30..259200]";
+      inline static const char* const TargetId = "";
 
 
-      GetAlmanacInitialUploadTimeOffsetResult();
 
-      GetAlmanacInitialUploadTimeOffsetResult(const std::string& system, int offset);
+          GetAlmanacInitialUploadTimeOffsetResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetAlmanacInitialUploadTimeOffsetResult(CommandBasePtr relatedCommand, const std::string& system, int offset);
+          GetAlmanacInitialUploadTimeOffsetResult(const std::string& system, int offset)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetAlmanacInitialUploadTimeOffsetResultPtr create(const std::string& system, int offset);
+            setSystem(system);
+            setOffset(offset);
+          }
 
-      static GetAlmanacInitialUploadTimeOffsetResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int offset);
-      static GetAlmanacInitialUploadTimeOffsetResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAlmanacInitialUploadTimeOffsetResult(CommandBasePtr relatedCommand, const std::string& system, int offset)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSystem(system);
+            setOffset(offset);
+          }
 
 
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
+
+          static GetAlmanacInitialUploadTimeOffsetResultPtr create(const std::string& system, int offset)
+          {
+            return std::make_shared<GetAlmanacInitialUploadTimeOffsetResult>(system, offset);
+          }
+
+          static GetAlmanacInitialUploadTimeOffsetResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int offset)
+          {
+            return std::make_shared<GetAlmanacInitialUploadTimeOffsetResult>(relatedCommand, system, offset);
+          }
+
+      static GetAlmanacInitialUploadTimeOffsetResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAlmanacInitialUploadTimeOffsetResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["Offset"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "Offset"}; 
+        return names; 
+      }
+      
 
 
-      // **** offset ****
-      int offset() const;
-      void setOffset(int offset);
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int offset() const
+          {
+            return parse_json<int>::parse(m_values["Offset"]);
+          }
+
+          void setOffset(int offset)
+          {
+            m_values.AddMember("Offset", parse_json<int>::format(offset, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetAlmanacInitialUploadTimeOffsetResult);
+    REGISTER_COMMAND_TO_FACTORY(GetAlmanacInitialUploadTimeOffsetResult);
   }
 }
 

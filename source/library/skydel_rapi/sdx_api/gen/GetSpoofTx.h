@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -26,29 +26,70 @@ namespace Sdx
     class GetSpoofTx : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSpoofTx";
+      inline static const char* const Documentation = "Get a spoofer transmitter. For set : the transmitter Id parameter is not set (empty string),\n"      "Skydel will assign a unique Id to the transmitter. If the Id is set and already used by Skydel, the\n"      "command will fail.\n"      "\n"      "Name Type   Description\n"      "---- ------ ------------------------------\n"      "Id   string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      GetSpoofTx();
 
-      GetSpoofTx(const std::string& id);
+          GetSpoofTx()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetSpoofTxPtr create(const std::string& id);
-      static GetSpoofTxPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSpoofTx(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static GetSpoofTxPtr create(const std::string& id)
+          {
+            return std::make_shared<GetSpoofTx>(id);
+          }
+
+      static GetSpoofTxPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSpoofTx>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetSpoofTx);
   }
 }
 

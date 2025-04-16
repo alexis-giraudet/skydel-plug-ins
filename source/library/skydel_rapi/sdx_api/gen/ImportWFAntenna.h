@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class ImportWFAntenna : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "ImportWFAntenna";
+      inline static const char* const Documentation = "Import Wavefront Antenna settings from an XML file.\n"      "\n"      "Name     Type   Description\n"      "-------- ------ -----------------------------------------\n"      "FilePath string File path for Wavefront Antenna settings.";
+      inline static const char* const TargetId = "";
 
 
-      ImportWFAntenna();
 
-      ImportWFAntenna(const std::string& filePath);
+          ImportWFAntenna()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static ImportWFAntennaPtr create(const std::string& filePath);
-      static ImportWFAntennaPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          ImportWFAntenna(const std::string& filePath)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setFilePath(filePath);
+          }
 
 
-      // **** filePath ****
-      std::string filePath() const;
-      void setFilePath(const std::string& filePath);
+          static ImportWFAntennaPtr create(const std::string& filePath)
+          {
+            return std::make_shared<ImportWFAntenna>(filePath);
+          }
+
+      static ImportWFAntennaPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<ImportWFAntenna>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["FilePath"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"FilePath"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string filePath() const
+          {
+            return parse_json<std::string>::parse(m_values["FilePath"]);
+          }
+
+          void setFilePath(const std::string& filePath)
+          {
+            m_values.AddMember("FilePath", parse_json<std::string>::format(filePath, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(ImportWFAntenna);
   }
 }
 

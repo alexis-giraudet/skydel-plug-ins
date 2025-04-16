@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetWFElement : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetWFElement";
+      inline static const char* const Documentation = "Get the Wavefront element properties.\n"      "\n"      "Name    Type Description\n"      "------- ---- -----------------------------------------------------------------------------------\n"      "Element int  One-based index of the element. Value -1 adds a new element at the end of the list.";
+      inline static const char* const TargetId = "";
 
 
-      GetWFElement();
 
-      GetWFElement(int element);
+          GetWFElement()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetWFElementPtr create(int element);
-      static GetWFElementPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetWFElement(int element)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setElement(element);
+          }
 
 
-      // **** element ****
-      int element() const;
-      void setElement(int element);
+          static GetWFElementPtr create(int element)
+          {
+            return std::make_shared<GetWFElement>(element);
+          }
+
+      static GetWFElementPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetWFElement>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Element"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Element"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int element() const
+          {
+            return parse_json<int>::parse(m_values["Element"]);
+          }
+
+          void setElement(int element)
+          {
+            m_values.AddMember("Element", parse_json<int>::format(element, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetWFElement);
   }
 }
 

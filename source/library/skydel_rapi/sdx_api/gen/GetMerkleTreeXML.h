@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 #include <vector>
 
@@ -26,34 +26,84 @@ namespace Sdx
     class GetMerkleTreeXML : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetMerkleTreeXML";
+      inline static const char* const Documentation = "Get Get an OSNMA Merkle Tree XML representation with the format defined in the Galileo OSNMA IDD ICD.\n"      "\n"      "Name             Type      Description\n"      "---------------- --------- ---------------------------------------------------------------------------------------------------------------------------\n"      "Id               string    Merkle Tree unique identifier.\n"      "PublicKeyIndexes array int Indexes (0-based) of Public Keys to export in the Merkle Tree. If empty, only the Public Key with index 0 will be exported.";
+      inline static const char* const TargetId = "";
 
 
-      GetMerkleTreeXML();
 
-      GetMerkleTreeXML(const std::string& id, const std::vector<int>& publicKeyIndexes);
+          GetMerkleTreeXML()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetMerkleTreeXMLPtr create(const std::string& id, const std::vector<int>& publicKeyIndexes);
-      static GetMerkleTreeXMLPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetMerkleTreeXML(const std::string& id, const std::vector<int>& publicKeyIndexes)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+            setId(id);
+            setPublicKeyIndexes(publicKeyIndexes);
+          }
 
 
-      // **** publicKeyIndexes ****
-      std::vector<int> publicKeyIndexes() const;
-      void setPublicKeyIndexes(const std::vector<int>& publicKeyIndexes);
+          static GetMerkleTreeXMLPtr create(const std::string& id, const std::vector<int>& publicKeyIndexes)
+          {
+            return std::make_shared<GetMerkleTreeXML>(id, publicKeyIndexes);
+          }
+
+      static GetMerkleTreeXMLPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetMerkleTreeXML>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                  && parse_json<std::vector<int>>::is_valid(m_values["PublicKeyIndexes"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id", "PublicKeyIndexes"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<int> publicKeyIndexes() const
+          {
+            return parse_json<std::vector<int>>::parse(m_values["PublicKeyIndexes"]);
+          }
+
+          void setPublicKeyIndexes(const std::vector<int>& publicKeyIndexes)
+          {
+            m_values.AddMember("PublicKeyIndexes", parse_json<std::vector<int>>::format(publicKeyIndexes, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetMerkleTreeXML);
   }
 }
 

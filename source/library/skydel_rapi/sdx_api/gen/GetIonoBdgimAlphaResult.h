@@ -25,36 +25,92 @@ namespace Sdx
     class GetIonoBdgimAlphaResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetIonoBdgimAlphaResult";
+      inline static const char* const Documentation = "Result of GetIonoBdgimAlpha.\n"      "\n"      "Name  Type   Description\n"      "----- ------ ------------------------\n"      "Index int    Coefficient index [1..9]\n"      "Val   double Coefficient value";
+      inline static const char* const TargetId = "";
 
 
-      GetIonoBdgimAlphaResult();
 
-      GetIonoBdgimAlphaResult(int index, double val);
+          GetIonoBdgimAlphaResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetIonoBdgimAlphaResult(CommandBasePtr relatedCommand, int index, double val);
+          GetIonoBdgimAlphaResult(int index, double val)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetIonoBdgimAlphaResultPtr create(int index, double val);
+            setIndex(index);
+            setVal(val);
+          }
 
-      static GetIonoBdgimAlphaResultPtr create(CommandBasePtr relatedCommand, int index, double val);
-      static GetIonoBdgimAlphaResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetIonoBdgimAlphaResult(CommandBasePtr relatedCommand, int index, double val)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIndex(index);
+            setVal(val);
+          }
 
 
-      // **** index ****
-      int index() const;
-      void setIndex(int index);
+
+          static GetIonoBdgimAlphaResultPtr create(int index, double val)
+          {
+            return std::make_shared<GetIonoBdgimAlphaResult>(index, val);
+          }
+
+          static GetIonoBdgimAlphaResultPtr create(CommandBasePtr relatedCommand, int index, double val)
+          {
+            return std::make_shared<GetIonoBdgimAlphaResult>(relatedCommand, index, val);
+          }
+
+      static GetIonoBdgimAlphaResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetIonoBdgimAlphaResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Index"])
+                  && parse_json<double>::is_valid(m_values["Val"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Index", "Val"}; 
+        return names; 
+      }
+      
 
 
-      // **** val ****
-      double val() const;
-      void setVal(double val);
+          int index() const
+          {
+            return parse_json<int>::parse(m_values["Index"]);
+          }
+
+          void setIndex(int index)
+          {
+            m_values.AddMember("Index", parse_json<int>::format(index, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double val() const
+          {
+            return parse_json<double>::parse(m_values["Val"]);
+          }
+
+          void setVal(double val)
+          {
+            m_values.AddMember("Val", parse_json<double>::format(val, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetIonoBdgimAlphaResult);
+    REGISTER_COMMAND_TO_FACTORY(GetIonoBdgimAlphaResult);
   }
 }
 

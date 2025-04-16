@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class GetAllSpoofTxID : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAllSpoofTxID";
+      inline static const char* const Documentation = "Get the ID of all spoofer transmitters.";
+      inline static const char* const TargetId = "";
 
 
-      GetAllSpoofTxID();
 
-      static GetAllSpoofTxIDPtr create();
-      static GetAllSpoofTxIDPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAllSpoofTxID()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetAllSpoofTxIDPtr create()
+          {
+            return std::make_shared<GetAllSpoofTxID>();
+          }
+
+      static GetAllSpoofTxIDPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAllSpoofTxID>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetAllSpoofTxID);
   }
 }
 

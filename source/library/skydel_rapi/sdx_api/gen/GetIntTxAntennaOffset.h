@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -30,29 +30,70 @@ namespace Sdx
     class GetIntTxAntennaOffset : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetIntTxAntennaOffset";
+      inline static const char* const Documentation = "Get antenna offset and orientation relative to body frame.\n"      "The origin of the body frame follows the transmitter trajectory.\n"      "When the body yaw/pitch/roll are zeros, the body X-axis is pointing north\n"      "                         Y-axis is pointing east\n"      "                         Z-axis is pointing down\n"      "The antenna Yaw is rotating around Z-axis. Pitch is rotating around Y-axis and\n"      "the Roll is rotating arond the X-axis of the body frame.\n"      "\n"      "Name Type   Description\n"      "---- ------ ------------------------------\n"      "Id   string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      GetIntTxAntennaOffset();
 
-      GetIntTxAntennaOffset(const std::string& id);
+          GetIntTxAntennaOffset()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetIntTxAntennaOffsetPtr create(const std::string& id);
-      static GetIntTxAntennaOffsetPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetIntTxAntennaOffset(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static GetIntTxAntennaOffsetPtr create(const std::string& id)
+          {
+            return std::make_shared<GetIntTxAntennaOffset>(id);
+          }
+
+      static GetIntTxAntennaOffsetPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetIntTxAntennaOffset>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetIntTxAntennaOffset);
   }
 }
 

@@ -25,36 +25,92 @@ namespace Sdx
     class GetSbasEphemerisReferenceTimeForSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSbasEphemerisReferenceTimeForSVResult";
+      inline static const char* const Documentation = "Result of GetSbasEphemerisReferenceTimeForSV.\n"      "\n"      "Name Type     Description\n"      "---- -------- ---------------------------------------------------------------\n"      "SvId int      The satellite's SV ID.\n"      "Time datetime GPS date and time (it is the GPS time expressed in UTC format).";
+      inline static const char* const TargetId = "";
 
 
-      GetSbasEphemerisReferenceTimeForSVResult();
 
-      GetSbasEphemerisReferenceTimeForSVResult(int svId, const Sdx::DateTime& time);
+          GetSbasEphemerisReferenceTimeForSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetSbasEphemerisReferenceTimeForSVResult(CommandBasePtr relatedCommand, int svId, const Sdx::DateTime& time);
+          GetSbasEphemerisReferenceTimeForSVResult(int svId, const Sdx::DateTime& time)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetSbasEphemerisReferenceTimeForSVResultPtr create(int svId, const Sdx::DateTime& time);
+            setSvId(svId);
+            setTime(time);
+          }
 
-      static GetSbasEphemerisReferenceTimeForSVResultPtr create(CommandBasePtr relatedCommand, int svId, const Sdx::DateTime& time);
-      static GetSbasEphemerisReferenceTimeForSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSbasEphemerisReferenceTimeForSVResult(CommandBasePtr relatedCommand, int svId, const Sdx::DateTime& time)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSvId(svId);
+            setTime(time);
+          }
 
 
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+
+          static GetSbasEphemerisReferenceTimeForSVResultPtr create(int svId, const Sdx::DateTime& time)
+          {
+            return std::make_shared<GetSbasEphemerisReferenceTimeForSVResult>(svId, time);
+          }
+
+          static GetSbasEphemerisReferenceTimeForSVResultPtr create(CommandBasePtr relatedCommand, int svId, const Sdx::DateTime& time)
+          {
+            return std::make_shared<GetSbasEphemerisReferenceTimeForSVResult>(relatedCommand, svId, time);
+          }
+
+      static GetSbasEphemerisReferenceTimeForSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSbasEphemerisReferenceTimeForSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<Sdx::DateTime>::is_valid(m_values["Time"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId", "Time"}; 
+        return names; 
+      }
+      
 
 
-      // **** time ****
-      Sdx::DateTime time() const;
-      void setTime(const Sdx::DateTime& time);
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          Sdx::DateTime time() const
+          {
+            return parse_json<Sdx::DateTime>::parse(m_values["Time"]);
+          }
+
+          void setTime(const Sdx::DateTime& time)
+          {
+            m_values.AddMember("Time", parse_json<Sdx::DateTime>::format(time, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetSbasEphemerisReferenceTimeForSVResult);
+    REGISTER_COMMAND_TO_FACTORY(GetSbasEphemerisReferenceTimeForSVResult);
   }
 }
 

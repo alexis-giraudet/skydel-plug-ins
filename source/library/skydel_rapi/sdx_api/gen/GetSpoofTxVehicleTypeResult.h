@@ -25,36 +25,92 @@ namespace Sdx
     class GetSpoofTxVehicleTypeResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSpoofTxVehicleTypeResult";
+      inline static const char* const Documentation = "Result of GetSpoofTxVehicleType.\n"      "\n"      "Name Type   Description\n"      "---- ------ -----------------------------------------------------------\n"      "Type string Vehicle type (\"Ground / Water\" or \"Airborne / Spaceborne\").\n"      "Id   string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      GetSpoofTxVehicleTypeResult();
 
-      GetSpoofTxVehicleTypeResult(const std::string& type, const std::string& id);
+          GetSpoofTxVehicleTypeResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetSpoofTxVehicleTypeResult(CommandBasePtr relatedCommand, const std::string& type, const std::string& id);
+          GetSpoofTxVehicleTypeResult(const std::string& type, const std::string& id)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetSpoofTxVehicleTypeResultPtr create(const std::string& type, const std::string& id);
+            setType(type);
+            setId(id);
+          }
 
-      static GetSpoofTxVehicleTypeResultPtr create(CommandBasePtr relatedCommand, const std::string& type, const std::string& id);
-      static GetSpoofTxVehicleTypeResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSpoofTxVehicleTypeResult(CommandBasePtr relatedCommand, const std::string& type, const std::string& id)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setType(type);
+            setId(id);
+          }
 
 
-      // **** type ****
-      std::string type() const;
-      void setType(const std::string& type);
+
+          static GetSpoofTxVehicleTypeResultPtr create(const std::string& type, const std::string& id)
+          {
+            return std::make_shared<GetSpoofTxVehicleTypeResult>(type, id);
+          }
+
+          static GetSpoofTxVehicleTypeResultPtr create(CommandBasePtr relatedCommand, const std::string& type, const std::string& id)
+          {
+            return std::make_shared<GetSpoofTxVehicleTypeResult>(relatedCommand, type, id);
+          }
+
+      static GetSpoofTxVehicleTypeResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSpoofTxVehicleTypeResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Type"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type", "Id"}; 
+        return names; 
+      }
+      
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          std::string type() const
+          {
+            return parse_json<std::string>::parse(m_values["Type"]);
+          }
+
+          void setType(const std::string& type)
+          {
+            m_values.AddMember("Type", parse_json<std::string>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetSpoofTxVehicleTypeResult);
+    REGISTER_COMMAND_TO_FACTORY(GetSpoofTxVehicleTypeResult);
   }
 }
 

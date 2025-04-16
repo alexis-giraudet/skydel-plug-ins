@@ -24,31 +24,77 @@ namespace Sdx
     class IsAttitudeToZeroForcedResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsAttitudeToZeroForcedResult";
+      inline static const char* const Documentation = "Result of IsAttitudeToZeroForced.\n"      "\n"      "Name    Type Description\n"      "------- ---- -----------------------------------------------\n"      "Enabled bool If true, vehicle won't rotate during simulation";
+      inline static const char* const TargetId = "";
 
 
-      IsAttitudeToZeroForcedResult();
 
-      IsAttitudeToZeroForcedResult(bool enabled);
+          IsAttitudeToZeroForcedResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsAttitudeToZeroForcedResult(CommandBasePtr relatedCommand, bool enabled);
+          IsAttitudeToZeroForcedResult(bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsAttitudeToZeroForcedResultPtr create(bool enabled);
+            setEnabled(enabled);
+          }
 
-      static IsAttitudeToZeroForcedResultPtr create(CommandBasePtr relatedCommand, bool enabled);
-      static IsAttitudeToZeroForcedResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsAttitudeToZeroForcedResult(CommandBasePtr relatedCommand, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsAttitudeToZeroForcedResultPtr create(bool enabled)
+          {
+            return std::make_shared<IsAttitudeToZeroForcedResult>(enabled);
+          }
+
+          static IsAttitudeToZeroForcedResultPtr create(CommandBasePtr relatedCommand, bool enabled)
+          {
+            return std::make_shared<IsAttitudeToZeroForcedResult>(relatedCommand, enabled);
+          }
+
+      static IsAttitudeToZeroForcedResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsAttitudeToZeroForcedResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsAttitudeToZeroForcedResult);
+    REGISTER_COMMAND_TO_FACTORY(IsAttitudeToZeroForcedResult);
   }
 }
 

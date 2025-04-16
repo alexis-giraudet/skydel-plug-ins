@@ -30,61 +30,167 @@ namespace Sdx
     class GetVehicleTrajectoryFixResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetVehicleTrajectoryFixResult";
+      inline static const char* const Documentation = "Result of GetVehicleTrajectoryFix.\n"      "\n"      "Name  Type   Description\n"      "----- ------ -----------------------\n"      "Type  string Trajectory type (\"Fix\")\n"      "Lat   double Latitude (rad)\n"      "Lon   double Longitude (rad)\n"      "Alt   double Altitude (m)\n"      "Yaw   double Yaw (rad)\n"      "Pitch double Pitch (rad)\n"      "Roll  double Roll (rad)";
+      inline static const char* const TargetId = "";
 
 
-      GetVehicleTrajectoryFixResult();
 
-      GetVehicleTrajectoryFixResult(const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll);
+          GetVehicleTrajectoryFixResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetVehicleTrajectoryFixResult(CommandBasePtr relatedCommand, const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll);
+          GetVehicleTrajectoryFixResult(const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetVehicleTrajectoryFixResultPtr create(const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll);
+            setType(type);
+            setLat(lat);
+            setLon(lon);
+            setAlt(alt);
+            setYaw(yaw);
+            setPitch(pitch);
+            setRoll(roll);
+          }
 
-      static GetVehicleTrajectoryFixResultPtr create(CommandBasePtr relatedCommand, const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll);
-      static GetVehicleTrajectoryFixResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetVehicleTrajectoryFixResult(CommandBasePtr relatedCommand, const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** type ****
-      std::string type() const;
-      void setType(const std::string& type);
-
-
-      // **** lat ****
-      double lat() const;
-      void setLat(double lat);
-
-
-      // **** lon ****
-      double lon() const;
-      void setLon(double lon);
-
-
-      // **** alt ****
-      double alt() const;
-      void setAlt(double alt);
+            setType(type);
+            setLat(lat);
+            setLon(lon);
+            setAlt(alt);
+            setYaw(yaw);
+            setPitch(pitch);
+            setRoll(roll);
+          }
 
 
-      // **** yaw ****
-      double yaw() const;
-      void setYaw(double yaw);
+
+          static GetVehicleTrajectoryFixResultPtr create(const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll)
+          {
+            return std::make_shared<GetVehicleTrajectoryFixResult>(type, lat, lon, alt, yaw, pitch, roll);
+          }
+
+          static GetVehicleTrajectoryFixResultPtr create(CommandBasePtr relatedCommand, const std::string& type, double lat, double lon, double alt, double yaw, double pitch, double roll)
+          {
+            return std::make_shared<GetVehicleTrajectoryFixResult>(relatedCommand, type, lat, lon, alt, yaw, pitch, roll);
+          }
+
+      static GetVehicleTrajectoryFixResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetVehicleTrajectoryFixResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Type"])
+                  && parse_json<double>::is_valid(m_values["Lat"])
+                  && parse_json<double>::is_valid(m_values["Lon"])
+                  && parse_json<double>::is_valid(m_values["Alt"])
+                  && parse_json<double>::is_valid(m_values["Yaw"])
+                  && parse_json<double>::is_valid(m_values["Pitch"])
+                  && parse_json<double>::is_valid(m_values["Roll"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type", "Lat", "Lon", "Alt", "Yaw", "Pitch", "Roll"}; 
+        return names; 
+      }
+      
 
 
-      // **** pitch ****
-      double pitch() const;
-      void setPitch(double pitch);
+          std::string type() const
+          {
+            return parse_json<std::string>::parse(m_values["Type"]);
+          }
+
+          void setType(const std::string& type)
+          {
+            m_values.AddMember("Type", parse_json<std::string>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
 
 
-      // **** roll ****
-      double roll() const;
-      void setRoll(double roll);
+
+          double lat() const
+          {
+            return parse_json<double>::parse(m_values["Lat"]);
+          }
+
+          void setLat(double lat)
+          {
+            m_values.AddMember("Lat", parse_json<double>::format(lat, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double lon() const
+          {
+            return parse_json<double>::parse(m_values["Lon"]);
+          }
+
+          void setLon(double lon)
+          {
+            m_values.AddMember("Lon", parse_json<double>::format(lon, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double alt() const
+          {
+            return parse_json<double>::parse(m_values["Alt"]);
+          }
+
+          void setAlt(double alt)
+          {
+            m_values.AddMember("Alt", parse_json<double>::format(alt, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double yaw() const
+          {
+            return parse_json<double>::parse(m_values["Yaw"]);
+          }
+
+          void setYaw(double yaw)
+          {
+            m_values.AddMember("Yaw", parse_json<double>::format(yaw, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double pitch() const
+          {
+            return parse_json<double>::parse(m_values["Pitch"]);
+          }
+
+          void setPitch(double pitch)
+          {
+            m_values.AddMember("Pitch", parse_json<double>::format(pitch, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double roll() const
+          {
+            return parse_json<double>::parse(m_values["Roll"]);
+          }
+
+          void setRoll(double roll)
+          {
+            m_values.AddMember("Roll", parse_json<double>::format(roll, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetVehicleTrajectoryFixResult);
+    REGISTER_COMMAND_TO_FACTORY(GetVehicleTrajectoryFixResult);
   }
 }
 

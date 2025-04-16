@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetWavefrontJamCalibrationState : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetWavefrontJamCalibrationState";
+      inline static const char* const Documentation = "Set whether the JAM Calibration output is transmitting.\n"      "\n"      "Name  Type Description\n"      "----- ---- ------------------------------------------------------------------------------\n"      "State bool True for the signal to go through the JAM Calibration output, False otherwise.";
+      inline static const char* const TargetId = "";
 
 
-      SetWavefrontJamCalibrationState();
 
-      SetWavefrontJamCalibrationState(bool state);
+          SetWavefrontJamCalibrationState()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetWavefrontJamCalibrationStatePtr create(bool state);
-      static SetWavefrontJamCalibrationStatePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetWavefrontJamCalibrationState(bool state)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setState(state);
+          }
 
 
-      // **** state ****
-      bool state() const;
-      void setState(bool state);
+          static SetWavefrontJamCalibrationStatePtr create(bool state)
+          {
+            return std::make_shared<SetWavefrontJamCalibrationState>(state);
+          }
+
+      static SetWavefrontJamCalibrationStatePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetWavefrontJamCalibrationState>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["State"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"State"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING;
+          }
+
+
+          bool state() const
+          {
+            return parse_json<bool>::parse(m_values["State"]);
+          }
+
+          void setState(bool state)
+          {
+            m_values.AddMember("State", parse_json<bool>::format(state, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetWavefrontJamCalibrationState);
   }
 }
 

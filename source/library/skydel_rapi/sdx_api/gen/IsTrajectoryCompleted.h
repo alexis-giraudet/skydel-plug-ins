@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -25,22 +25,52 @@ namespace Sdx
     class IsTrajectoryCompleted : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsTrajectoryCompleted";
+      inline static const char* const Documentation = "Returns whether the vehicle trajectory was completed.\n"      "For fixed, circular and earth-orbiting spacecraft, this will always return false.\n"      "For track playback and vehicle simulation, this will return true once the vehicle will reach the last position in the track/route.\n"      "The value is unreliable for HIL trajectories.";
+      inline static const char* const TargetId = "";
 
 
-      IsTrajectoryCompleted();
 
-      static IsTrajectoryCompletedPtr create();
-      static IsTrajectoryCompletedPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsTrajectoryCompleted()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static IsTrajectoryCompletedPtr create()
+          {
+            return std::make_shared<IsTrajectoryCompleted>();
+          }
+
+      static IsTrajectoryCompletedPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsTrajectoryCompleted>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsTrajectoryCompleted);
   }
 }
 

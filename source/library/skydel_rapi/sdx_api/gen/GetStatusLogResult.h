@@ -25,31 +25,77 @@ namespace Sdx
     class GetStatusLogResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetStatusLogResult";
+      inline static const char* const Documentation = "Result of GetStatusLog.\n"      "\n"      "Name    Type            Description\n"      "------- --------------- ----------------\n"      "Records array LogRecord The log records.";
+      inline static const char* const TargetId = "";
 
 
-      GetStatusLogResult();
 
-      GetStatusLogResult(const std::vector<Sdx::LogRecord>& records);
+          GetStatusLogResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetStatusLogResult(CommandBasePtr relatedCommand, const std::vector<Sdx::LogRecord>& records);
+          GetStatusLogResult(const std::vector<Sdx::LogRecord>& records)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetStatusLogResultPtr create(const std::vector<Sdx::LogRecord>& records);
+            setRecords(records);
+          }
 
-      static GetStatusLogResultPtr create(CommandBasePtr relatedCommand, const std::vector<Sdx::LogRecord>& records);
-      static GetStatusLogResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetStatusLogResult(CommandBasePtr relatedCommand, const std::vector<Sdx::LogRecord>& records)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setRecords(records);
+          }
 
 
-      // **** records ****
-      std::vector<Sdx::LogRecord> records() const;
-      void setRecords(const std::vector<Sdx::LogRecord>& records);
+
+          static GetStatusLogResultPtr create(const std::vector<Sdx::LogRecord>& records)
+          {
+            return std::make_shared<GetStatusLogResult>(records);
+          }
+
+          static GetStatusLogResultPtr create(CommandBasePtr relatedCommand, const std::vector<Sdx::LogRecord>& records)
+          {
+            return std::make_shared<GetStatusLogResult>(relatedCommand, records);
+          }
+
+      static GetStatusLogResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetStatusLogResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<Sdx::LogRecord>>::is_valid(m_values["Records"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Records"}; 
+        return names; 
+      }
+      
+
+
+          std::vector<Sdx::LogRecord> records() const
+          {
+            return parse_json<std::vector<Sdx::LogRecord>>::parse(m_values["Records"]);
+          }
+
+          void setRecords(const std::vector<Sdx::LogRecord>& records)
+          {
+            m_values.AddMember("Records", parse_json<std::vector<Sdx::LogRecord>>::format(records, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetStatusLogResult);
+    REGISTER_COMMAND_TO_FACTORY(GetStatusLogResult);
   }
 }
 

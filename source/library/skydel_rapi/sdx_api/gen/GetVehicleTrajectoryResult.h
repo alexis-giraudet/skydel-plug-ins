@@ -24,31 +24,77 @@ namespace Sdx
     class GetVehicleTrajectoryResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetVehicleTrajectoryResult";
+      inline static const char* const Documentation = "Result of GetVehicleTrajectory.\n"      "\n"      "Name Type   Description\n"      "---- ------ -----------------------------------------------------------------------\n"      "Type string Trajectory type (\"Fix\", \"Circular\", \"HIL\", \"Track\", \"Route\" or \"Orbit\")";
+      inline static const char* const TargetId = "";
 
 
-      GetVehicleTrajectoryResult();
 
-      GetVehicleTrajectoryResult(const std::string& type);
+          GetVehicleTrajectoryResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetVehicleTrajectoryResult(CommandBasePtr relatedCommand, const std::string& type);
+          GetVehicleTrajectoryResult(const std::string& type)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetVehicleTrajectoryResultPtr create(const std::string& type);
+            setType(type);
+          }
 
-      static GetVehicleTrajectoryResultPtr create(CommandBasePtr relatedCommand, const std::string& type);
-      static GetVehicleTrajectoryResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetVehicleTrajectoryResult(CommandBasePtr relatedCommand, const std::string& type)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setType(type);
+          }
 
 
-      // **** type ****
-      std::string type() const;
-      void setType(const std::string& type);
+
+          static GetVehicleTrajectoryResultPtr create(const std::string& type)
+          {
+            return std::make_shared<GetVehicleTrajectoryResult>(type);
+          }
+
+          static GetVehicleTrajectoryResultPtr create(CommandBasePtr relatedCommand, const std::string& type)
+          {
+            return std::make_shared<GetVehicleTrajectoryResult>(relatedCommand, type);
+          }
+
+      static GetVehicleTrajectoryResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetVehicleTrajectoryResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Type"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type"}; 
+        return names; 
+      }
+      
+
+
+          std::string type() const
+          {
+            return parse_json<std::string>::parse(m_values["Type"]);
+          }
+
+          void setType(const std::string& type)
+          {
+            m_values.AddMember("Type", parse_json<std::string>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetVehicleTrajectoryResult);
+    REGISTER_COMMAND_TO_FACTORY(GetVehicleTrajectoryResult);
   }
 }
 

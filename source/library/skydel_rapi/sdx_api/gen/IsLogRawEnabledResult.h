@@ -24,31 +24,77 @@ namespace Sdx
     class IsLogRawEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsLogRawEnabledResult";
+      inline static const char* const Documentation = "Result of IsLogRawEnabled.\n"      "\n"      "Name    Type Description\n"      "------- ---- -----------------------------------------------\n"      "Enabled bool If true, file will be created during simulation";
+      inline static const char* const TargetId = "";
 
 
-      IsLogRawEnabledResult();
 
-      IsLogRawEnabledResult(bool enabled);
+          IsLogRawEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsLogRawEnabledResult(CommandBasePtr relatedCommand, bool enabled);
+          IsLogRawEnabledResult(bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsLogRawEnabledResultPtr create(bool enabled);
+            setEnabled(enabled);
+          }
 
-      static IsLogRawEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled);
-      static IsLogRawEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsLogRawEnabledResult(CommandBasePtr relatedCommand, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsLogRawEnabledResultPtr create(bool enabled)
+          {
+            return std::make_shared<IsLogRawEnabledResult>(enabled);
+          }
+
+          static IsLogRawEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled)
+          {
+            return std::make_shared<IsLogRawEnabledResult>(relatedCommand, enabled);
+          }
+
+      static IsLogRawEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsLogRawEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsLogRawEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsLogRawEnabledResult);
   }
 }
 

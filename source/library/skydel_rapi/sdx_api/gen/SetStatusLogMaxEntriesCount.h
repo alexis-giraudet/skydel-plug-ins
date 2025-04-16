@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetStatusLogMaxEntriesCount : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetStatusLogMaxEntriesCount";
+      inline static const char* const Documentation = "When SetStatusLogMaxEntriesCountMode is set to \"Custom\", this commands sets the maximum number of entries in the Status Log. Default value is 1000 entries.\n"      "\n"      "Name     Type Description\n"      "-------- ---- --------------------------\n"      "MaxCount int  Maximum number of entries.";
+      inline static const char* const TargetId = "";
 
 
-      SetStatusLogMaxEntriesCount();
 
-      SetStatusLogMaxEntriesCount(int maxCount);
+          SetStatusLogMaxEntriesCount()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetStatusLogMaxEntriesCountPtr create(int maxCount);
-      static SetStatusLogMaxEntriesCountPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetStatusLogMaxEntriesCount(int maxCount)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setMaxCount(maxCount);
+          }
 
 
-      // **** maxCount ****
-      int maxCount() const;
-      void setMaxCount(int maxCount);
+          static SetStatusLogMaxEntriesCountPtr create(int maxCount)
+          {
+            return std::make_shared<SetStatusLogMaxEntriesCount>(maxCount);
+          }
+
+      static SetStatusLogMaxEntriesCountPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetStatusLogMaxEntriesCount>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["MaxCount"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"MaxCount"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_NO_CONFIG | EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
+
+
+          int maxCount() const
+          {
+            return parse_json<int>::parse(m_values["MaxCount"]);
+          }
+
+          void setMaxCount(int maxCount)
+          {
+            m_values.AddMember("MaxCount", parse_json<int>::format(maxCount, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetStatusLogMaxEntriesCount);
   }
 }
 

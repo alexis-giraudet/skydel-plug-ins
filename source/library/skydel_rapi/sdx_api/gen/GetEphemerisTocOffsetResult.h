@@ -25,36 +25,92 @@ namespace Sdx
     class GetEphemerisTocOffsetResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetEphemerisTocOffsetResult";
+      inline static const char* const Documentation = "Result of GetEphemerisTocOffset.\n"      "\n"      "Name   Type   Description\n"      "------ ------ -------------------------------------------------------\n"      "System string \"GPS\", \"Galileo\", \"BeiDou\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "Offset int    Offset in sec. Accepted range is [-604800..604800].";
+      inline static const char* const TargetId = "";
 
 
-      GetEphemerisTocOffsetResult();
 
-      GetEphemerisTocOffsetResult(const std::string& system, int offset);
+          GetEphemerisTocOffsetResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetEphemerisTocOffsetResult(CommandBasePtr relatedCommand, const std::string& system, int offset);
+          GetEphemerisTocOffsetResult(const std::string& system, int offset)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetEphemerisTocOffsetResultPtr create(const std::string& system, int offset);
+            setSystem(system);
+            setOffset(offset);
+          }
 
-      static GetEphemerisTocOffsetResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int offset);
-      static GetEphemerisTocOffsetResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetEphemerisTocOffsetResult(CommandBasePtr relatedCommand, const std::string& system, int offset)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSystem(system);
+            setOffset(offset);
+          }
 
 
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
+
+          static GetEphemerisTocOffsetResultPtr create(const std::string& system, int offset)
+          {
+            return std::make_shared<GetEphemerisTocOffsetResult>(system, offset);
+          }
+
+          static GetEphemerisTocOffsetResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int offset)
+          {
+            return std::make_shared<GetEphemerisTocOffsetResult>(relatedCommand, system, offset);
+          }
+
+      static GetEphemerisTocOffsetResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetEphemerisTocOffsetResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["Offset"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "Offset"}; 
+        return names; 
+      }
+      
 
 
-      // **** offset ****
-      int offset() const;
-      void setOffset(int offset);
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int offset() const
+          {
+            return parse_json<int>::parse(m_values["Offset"]);
+          }
+
+          void setOffset(int offset)
+          {
+            m_values.AddMember("Offset", parse_json<int>::format(offset, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetEphemerisTocOffsetResult);
+    REGISTER_COMMAND_TO_FACTORY(GetEphemerisTocOffsetResult);
   }
 }
 

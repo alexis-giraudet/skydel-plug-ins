@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetVehicleAntennaModel : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetVehicleAntennaModel";
+      inline static const char* const Documentation = "Get  all infos about this antenna model.\n"      "\n"      "Name Type   Description\n"      "---- ------ --------------------------\n"      "Name string Vehicle antenna model name";
+      inline static const char* const TargetId = "";
 
 
-      GetVehicleAntennaModel();
 
-      GetVehicleAntennaModel(const std::string& name);
+          GetVehicleAntennaModel()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetVehicleAntennaModelPtr create(const std::string& name);
-      static GetVehicleAntennaModelPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetVehicleAntennaModel(const std::string& name)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setName(name);
+          }
 
 
-      // **** name ****
-      std::string name() const;
-      void setName(const std::string& name);
+          static GetVehicleAntennaModelPtr create(const std::string& name)
+          {
+            return std::make_shared<GetVehicleAntennaModel>(name);
+          }
+
+      static GetVehicleAntennaModelPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetVehicleAntennaModel>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Name"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Name"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string name() const
+          {
+            return parse_json<std::string>::parse(m_values["Name"]);
+          }
+
+          void setName(const std::string& name)
+          {
+            m_values.AddMember("Name", parse_json<std::string>::format(name, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetVehicleAntennaModel);
   }
 }
 

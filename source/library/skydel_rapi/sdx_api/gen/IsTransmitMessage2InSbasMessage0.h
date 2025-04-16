@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class IsTransmitMessage2InSbasMessage0 : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsTransmitMessage2InSbasMessage0";
+      inline static const char* const Documentation = "Get whether SBAS should transmit message 2 instead of message 0.";
+      inline static const char* const TargetId = "";
 
 
-      IsTransmitMessage2InSbasMessage0();
 
-      static IsTransmitMessage2InSbasMessage0Ptr create();
-      static IsTransmitMessage2InSbasMessage0Ptr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsTransmitMessage2InSbasMessage0()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static IsTransmitMessage2InSbasMessage0Ptr create()
+          {
+            return std::make_shared<IsTransmitMessage2InSbasMessage0>();
+          }
+
+      static IsTransmitMessage2InSbasMessage0Ptr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsTransmitMessage2InSbasMessage0>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsTransmitMessage2InSbasMessage0);
   }
 }
 

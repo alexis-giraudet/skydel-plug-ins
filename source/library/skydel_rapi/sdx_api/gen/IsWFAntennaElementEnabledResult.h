@@ -25,36 +25,92 @@ namespace Sdx
     class IsWFAntennaElementEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsWFAntennaElementEnabledResult";
+      inline static const char* const Documentation = "Result of IsWFAntennaElementEnabled.\n"      "\n"      "Name    Type Description\n"      "------- ---- -------------------------------------------------\n"      "Element int  One-based index for element in antenna.\n"      "Enabled bool If True, this antenna element will bil simulated.";
+      inline static const char* const TargetId = "";
 
 
-      IsWFAntennaElementEnabledResult();
 
-      IsWFAntennaElementEnabledResult(int element, bool enabled);
+          IsWFAntennaElementEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsWFAntennaElementEnabledResult(CommandBasePtr relatedCommand, int element, bool enabled);
+          IsWFAntennaElementEnabledResult(int element, bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsWFAntennaElementEnabledResultPtr create(int element, bool enabled);
+            setElement(element);
+            setEnabled(enabled);
+          }
 
-      static IsWFAntennaElementEnabledResultPtr create(CommandBasePtr relatedCommand, int element, bool enabled);
-      static IsWFAntennaElementEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsWFAntennaElementEnabledResult(CommandBasePtr relatedCommand, int element, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setElement(element);
+            setEnabled(enabled);
+          }
 
 
-      // **** element ****
-      int element() const;
-      void setElement(int element);
+
+          static IsWFAntennaElementEnabledResultPtr create(int element, bool enabled)
+          {
+            return std::make_shared<IsWFAntennaElementEnabledResult>(element, enabled);
+          }
+
+          static IsWFAntennaElementEnabledResultPtr create(CommandBasePtr relatedCommand, int element, bool enabled)
+          {
+            return std::make_shared<IsWFAntennaElementEnabledResult>(relatedCommand, element, enabled);
+          }
+
+      static IsWFAntennaElementEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsWFAntennaElementEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Element"])
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Element", "Enabled"}; 
+        return names; 
+      }
+      
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+          int element() const
+          {
+            return parse_json<int>::parse(m_values["Element"]);
+          }
+
+          void setElement(int element)
+          {
+            m_values.AddMember("Element", parse_json<int>::format(element, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsWFAntennaElementEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsWFAntennaElementEnabledResult);
   }
 }
 

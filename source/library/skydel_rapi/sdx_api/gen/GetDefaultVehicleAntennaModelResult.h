@@ -24,31 +24,77 @@ namespace Sdx
     class GetDefaultVehicleAntennaModelResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetDefaultVehicleAntennaModelResult";
+      inline static const char* const Documentation = "Result of GetDefaultVehicleAntennaModel.\n"      "\n"      "Name Type   Description\n"      "---- ------ ---------------------------\n"      "Name string Default antenna model name.";
+      inline static const char* const TargetId = "";
 
 
-      GetDefaultVehicleAntennaModelResult();
 
-      GetDefaultVehicleAntennaModelResult(const std::string& name);
+          GetDefaultVehicleAntennaModelResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetDefaultVehicleAntennaModelResult(CommandBasePtr relatedCommand, const std::string& name);
+          GetDefaultVehicleAntennaModelResult(const std::string& name)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetDefaultVehicleAntennaModelResultPtr create(const std::string& name);
+            setName(name);
+          }
 
-      static GetDefaultVehicleAntennaModelResultPtr create(CommandBasePtr relatedCommand, const std::string& name);
-      static GetDefaultVehicleAntennaModelResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetDefaultVehicleAntennaModelResult(CommandBasePtr relatedCommand, const std::string& name)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setName(name);
+          }
 
 
-      // **** name ****
-      std::string name() const;
-      void setName(const std::string& name);
+
+          static GetDefaultVehicleAntennaModelResultPtr create(const std::string& name)
+          {
+            return std::make_shared<GetDefaultVehicleAntennaModelResult>(name);
+          }
+
+          static GetDefaultVehicleAntennaModelResultPtr create(CommandBasePtr relatedCommand, const std::string& name)
+          {
+            return std::make_shared<GetDefaultVehicleAntennaModelResult>(relatedCommand, name);
+          }
+
+      static GetDefaultVehicleAntennaModelResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetDefaultVehicleAntennaModelResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Name"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Name"}; 
+        return names; 
+      }
+      
+
+
+          std::string name() const
+          {
+            return parse_json<std::string>::parse(m_values["Name"]);
+          }
+
+          void setName(const std::string& name)
+          {
+            m_values.AddMember("Name", parse_json<std::string>::format(name, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetDefaultVehicleAntennaModelResult);
+    REGISTER_COMMAND_TO_FACTORY(GetDefaultVehicleAntennaModelResult);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <optional>
 #include <string>
 
@@ -27,39 +27,98 @@ namespace Sdx
     class GetGalileoSignalHealthForSV : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGalileoSignalHealthForSV";
+      inline static const char* const Documentation = "Get Galileo signal health for I/NAV and F/NAV message\n"      "\n"      "Name        Type            Description\n"      "----------- --------------- -------------------------------------------------------------------------------------------\n"      "SvId        int             The satellite's SV ID 1..36\n"      "Component   string          Component is either \"E5a\", \"E5b\", or \"E1B\"\n"      "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
+      inline static const char* const TargetId = "";
 
 
-      GetGalileoSignalHealthForSV();
 
-      GetGalileoSignalHealthForSV(int svId, const std::string& component, const std::optional<std::string>& dataSetName = {});
+          GetGalileoSignalHealthForSV()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetGalileoSignalHealthForSVPtr create(int svId, const std::string& component, const std::optional<std::string>& dataSetName = {});
-      static GetGalileoSignalHealthForSVPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGalileoSignalHealthForSV(int svId, const std::string& component, const std::optional<std::string>& dataSetName = {})
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+            setSvId(svId);
+            setComponent(component);
+            setDataSetName(dataSetName);
+          }
 
 
-      // **** component ****
-      std::string component() const;
-      void setComponent(const std::string& component);
+          static GetGalileoSignalHealthForSVPtr create(int svId, const std::string& component, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<GetGalileoSignalHealthForSV>(svId, component, dataSetName);
+          }
+
+      static GetGalileoSignalHealthForSVPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGalileoSignalHealthForSV>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<std::string>::is_valid(m_values["Component"])
+                  && parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId", "Component", "DataSetName"}; 
+        return names; 
+      }
+      
 
 
-      // **** dataSetName ****
-      std::optional<std::string> dataSetName() const;
-      void setDataSetName(const std::optional<std::string>& dataSetName);
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string component() const
+          {
+            return parse_json<std::string>::parse(m_values["Component"]);
+          }
+
+          void setComponent(const std::string& component)
+          {
+            m_values.AddMember("Component", parse_json<std::string>::format(component, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<std::string> dataSetName() const
+          {
+            return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
+          }
+
+          void setDataSetName(const std::optional<std::string>& dataSetName)
+          {
+            m_values.AddMember("DataSetName", parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetGalileoSignalHealthForSV);
   }
 }
 

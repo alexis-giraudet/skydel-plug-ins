@@ -24,31 +24,77 @@ namespace Sdx
     class IsUsingVelocityInSbasMessage25Result : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsUsingVelocityInSbasMessage25Result";
+      inline static const char* const Documentation = "Result of IsUsingVelocityInSbasMessage25.\n"      "\n"      "Name        Type Description\n"      "----------- ---- --------------------------------------------------------\n"      "UseVelocity bool Whether SBAS message 25 should send velocity corrections";
+      inline static const char* const TargetId = "";
 
 
-      IsUsingVelocityInSbasMessage25Result();
 
-      IsUsingVelocityInSbasMessage25Result(bool useVelocity);
+          IsUsingVelocityInSbasMessage25Result()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsUsingVelocityInSbasMessage25Result(CommandBasePtr relatedCommand, bool useVelocity);
+          IsUsingVelocityInSbasMessage25Result(bool useVelocity)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsUsingVelocityInSbasMessage25ResultPtr create(bool useVelocity);
+            setUseVelocity(useVelocity);
+          }
 
-      static IsUsingVelocityInSbasMessage25ResultPtr create(CommandBasePtr relatedCommand, bool useVelocity);
-      static IsUsingVelocityInSbasMessage25ResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsUsingVelocityInSbasMessage25Result(CommandBasePtr relatedCommand, bool useVelocity)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setUseVelocity(useVelocity);
+          }
 
 
-      // **** useVelocity ****
-      bool useVelocity() const;
-      void setUseVelocity(bool useVelocity);
+
+          static IsUsingVelocityInSbasMessage25ResultPtr create(bool useVelocity)
+          {
+            return std::make_shared<IsUsingVelocityInSbasMessage25Result>(useVelocity);
+          }
+
+          static IsUsingVelocityInSbasMessage25ResultPtr create(CommandBasePtr relatedCommand, bool useVelocity)
+          {
+            return std::make_shared<IsUsingVelocityInSbasMessage25Result>(relatedCommand, useVelocity);
+          }
+
+      static IsUsingVelocityInSbasMessage25ResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsUsingVelocityInSbasMessage25Result>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["UseVelocity"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"UseVelocity"}; 
+        return names; 
+      }
+      
+
+
+          bool useVelocity() const
+          {
+            return parse_json<bool>::parse(m_values["UseVelocity"]);
+          }
+
+          void setUseVelocity(bool useVelocity)
+          {
+            m_values.AddMember("UseVelocity", parse_json<bool>::format(useVelocity, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsUsingVelocityInSbasMessage25Result);
+    REGISTER_COMMAND_TO_FACTORY(IsUsingVelocityInSbasMessage25Result);
   }
 }
 

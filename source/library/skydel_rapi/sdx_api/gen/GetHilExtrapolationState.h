@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -25,22 +25,52 @@ namespace Sdx
     class GetHilExtrapolationState : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetHilExtrapolationState";
+      inline static const char* const Documentation = "Get last Hardware in the loop extrapolation state. The states are defined as\n"      "the following increasing priority levels: Deterministic, NonDeterministic and Snap.\n"      "The state will stay on the highest level until polled. Polling the extrapolation state will reset it.\n"      "Returns GetHilExtrapolationStateResult.";
+      inline static const char* const TargetId = "";
 
 
-      GetHilExtrapolationState();
 
-      static GetHilExtrapolationStatePtr create();
-      static GetHilExtrapolationStatePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetHilExtrapolationState()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetHilExtrapolationStatePtr create()
+          {
+            return std::make_shared<GetHilExtrapolationState>();
+          }
+
+      static GetHilExtrapolationStatePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetHilExtrapolationState>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetHilExtrapolationState);
   }
 }
 

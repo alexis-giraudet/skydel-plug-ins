@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetHilTjoin : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetHilTjoin";
+      inline static const char* const Documentation = "HIL Tjoin. Value is in milliseconds.\n"      "\n"      "Name     Type Description\n"      "-------- ---- -----------\n"      "HilTjoin int  HIL Tjoin.";
+      inline static const char* const TargetId = "";
 
 
-      SetHilTjoin();
 
-      SetHilTjoin(int hilTjoin);
+          SetHilTjoin()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetHilTjoinPtr create(int hilTjoin);
-      static SetHilTjoinPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetHilTjoin(int hilTjoin)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setHilTjoin(hilTjoin);
+          }
 
 
-      // **** hilTjoin ****
-      int hilTjoin() const;
-      void setHilTjoin(int hilTjoin);
+          static SetHilTjoinPtr create(int hilTjoin)
+          {
+            return std::make_shared<SetHilTjoin>(hilTjoin);
+          }
+
+      static SetHilTjoinPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetHilTjoin>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["HilTjoin"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"HilTjoin"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int hilTjoin() const
+          {
+            return parse_json<int>::parse(m_values["HilTjoin"]);
+          }
+
+          void setHilTjoin(int hilTjoin)
+          {
+            m_values.AddMember("HilTjoin", parse_json<int>::format(hilTjoin, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetHilTjoin);
   }
 }
 

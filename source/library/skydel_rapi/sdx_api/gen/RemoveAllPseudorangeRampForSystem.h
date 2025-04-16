@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class RemoveAllPseudorangeRampForSystem : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "RemoveAllPseudorangeRampForSystem";
+      inline static const char* const Documentation = "Remove all PSR Ramps for all satellites of the specified system.\n"      "\n"      "Name   Type   Description\n"      "------ ------ --------------------------------------------------------------------------\n"      "System string \"GPS\", \"GLONASS\", \"Galileo\", \"BeiDou\", \"SBAS\", \"QZSS\", \"NavIC\" or \"PULSAR\"";
+      inline static const char* const TargetId = "";
 
 
-      RemoveAllPseudorangeRampForSystem();
 
-      RemoveAllPseudorangeRampForSystem(const std::string& system);
+          RemoveAllPseudorangeRampForSystem()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static RemoveAllPseudorangeRampForSystemPtr create(const std::string& system);
-      static RemoveAllPseudorangeRampForSystemPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          RemoveAllPseudorangeRampForSystem(const std::string& system)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setSystem(system);
+          }
 
 
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
+          static RemoveAllPseudorangeRampForSystemPtr create(const std::string& system)
+          {
+            return std::make_shared<RemoveAllPseudorangeRampForSystem>(system);
+          }
+
+      static RemoveAllPseudorangeRampForSystemPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<RemoveAllPseudorangeRampForSystem>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(RemoveAllPseudorangeRampForSystem);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -26,33 +26,75 @@ namespace Sdx
     class StopMasterWhenSlaveStop : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "StopMasterWhenSlaveStop";
+      inline static const char* const Documentation = "Please note the command StopMasterWhenSlaveStop is deprecated since 23.11. You may use StopMainInstanceWhenWorkerInstanceStop.\n"      "\n"      "If enabled, master and all the slaves will stop if a slave stop.\n"      "\n"      "Name    Type Description\n"      "------- ---- ---------------------------------------\n"      "Enabled bool Enable master stop when slave fail flag";
+      inline static const char* const TargetId = "";
 
-      static const char* const Deprecated;
-
-
-      StopMasterWhenSlaveStop();
-
-      StopMasterWhenSlaveStop(bool enabled);
-
-      static StopMasterWhenSlaveStopPtr create(bool enabled);
-      static StopMasterWhenSlaveStopPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
-
-      virtual std::optional<std::string> deprecated() const override;
-
-      virtual int executePermission() const override;
+      inline static const char* const Deprecated = "Please note the command StopMasterWhenSlaveStop is deprecated since 23.11. You may use StopMainInstanceWhenWorkerInstanceStop.";
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          StopMasterWhenSlaveStop()
+            : CommandBase(CmdName, TargetId)
+          {}
+
+          StopMasterWhenSlaveStop(bool enabled)
+            : CommandBase(CmdName, TargetId)
+          {
+
+            setEnabled(enabled);
+          }
+
+
+          static StopMasterWhenSlaveStopPtr create(bool enabled)
+          {
+            return std::make_shared<StopMasterWhenSlaveStop>(enabled);
+          }
+
+      static StopMasterWhenSlaveStopPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<StopMasterWhenSlaveStop>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+          std::optional<std::string> deprecated() const { return std::optional<std::string>{Deprecated}; }
+
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_NO_CONFIG | EXECUTE_IF_IDLE | EXECUTE_IF_SIMULATING;
+          }
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(StopMasterWhenSlaveStop);
   }
 }
 

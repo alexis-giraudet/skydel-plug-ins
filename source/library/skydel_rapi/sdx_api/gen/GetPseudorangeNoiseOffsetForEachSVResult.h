@@ -28,41 +28,107 @@ namespace Sdx
     class GetPseudorangeNoiseOffsetForEachSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetPseudorangeNoiseOffsetForEachSVResult";
+      inline static const char* const Documentation = "Result of GetPseudorangeNoiseOffsetForEachSV.\n"      "\n"      "Name    Type         Description\n"      "------- ------------ --------------------------------------------------------------------------\n"      "System  string       \"GPS\", \"GLONASS\", \"Galileo\", \"BeiDou\", \"SBAS\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "Enabled array bool   If true, the offset is enabled (applied)\n"      "Offset  array double The constant offset in metters";
+      inline static const char* const TargetId = "";
 
 
-      GetPseudorangeNoiseOffsetForEachSVResult();
 
-      GetPseudorangeNoiseOffsetForEachSVResult(const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset);
+          GetPseudorangeNoiseOffsetForEachSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetPseudorangeNoiseOffsetForEachSVResult(CommandBasePtr relatedCommand, const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset);
+          GetPseudorangeNoiseOffsetForEachSVResult(const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetPseudorangeNoiseOffsetForEachSVResultPtr create(const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset);
+            setSystem(system);
+            setEnabled(enabled);
+            setOffset(offset);
+          }
 
-      static GetPseudorangeNoiseOffsetForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset);
-      static GetPseudorangeNoiseOffsetForEachSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetPseudorangeNoiseOffsetForEachSVResult(CommandBasePtr relatedCommand, const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
-
-
-      // **** enabled ****
-      std::vector<bool> enabled() const;
-      void setEnabled(const std::vector<bool>& enabled);
+            setSystem(system);
+            setEnabled(enabled);
+            setOffset(offset);
+          }
 
 
-      // **** offset ****
-      std::vector<double> offset() const;
-      void setOffset(const std::vector<double>& offset);
+
+          static GetPseudorangeNoiseOffsetForEachSVResultPtr create(const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset)
+          {
+            return std::make_shared<GetPseudorangeNoiseOffsetForEachSVResult>(system, enabled, offset);
+          }
+
+          static GetPseudorangeNoiseOffsetForEachSVResultPtr create(CommandBasePtr relatedCommand, const std::string& system, const std::vector<bool>& enabled, const std::vector<double>& offset)
+          {
+            return std::make_shared<GetPseudorangeNoiseOffsetForEachSVResult>(relatedCommand, system, enabled, offset);
+          }
+
+      static GetPseudorangeNoiseOffsetForEachSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetPseudorangeNoiseOffsetForEachSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<std::vector<bool>>::is_valid(m_values["Enabled"])
+                  && parse_json<std::vector<double>>::is_valid(m_values["Offset"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "Enabled", "Offset"}; 
+        return names; 
+      }
+      
+
+
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<bool> enabled() const
+          {
+            return parse_json<std::vector<bool>>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(const std::vector<bool>& enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<std::vector<bool>>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<double> offset() const
+          {
+            return parse_json<std::vector<double>>::parse(m_values["Offset"]);
+          }
+
+          void setOffset(const std::vector<double>& offset)
+          {
+            m_values.AddMember("Offset", parse_json<std::vector<double>>::format(offset, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetPseudorangeNoiseOffsetForEachSVResult);
+    REGISTER_COMMAND_TO_FACTORY(GetPseudorangeNoiseOffsetForEachSVResult);
   }
 }
 

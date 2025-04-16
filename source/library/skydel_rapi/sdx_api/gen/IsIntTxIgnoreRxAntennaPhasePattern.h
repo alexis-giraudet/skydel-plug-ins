@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class IsIntTxIgnoreRxAntennaPhasePattern : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsIntTxIgnoreRxAntennaPhasePattern";
+      inline static const char* const Documentation = "Get whether a dynamic transmitter ignore the receiver's antenna phase pattern.\n"      "\n"      "Name Type   Description\n"      "---- ------ ------------------------------\n"      "Id   string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      IsIntTxIgnoreRxAntennaPhasePattern();
 
-      IsIntTxIgnoreRxAntennaPhasePattern(const std::string& id);
+          IsIntTxIgnoreRxAntennaPhasePattern()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static IsIntTxIgnoreRxAntennaPhasePatternPtr create(const std::string& id);
-      static IsIntTxIgnoreRxAntennaPhasePatternPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsIntTxIgnoreRxAntennaPhasePattern(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static IsIntTxIgnoreRxAntennaPhasePatternPtr create(const std::string& id)
+          {
+            return std::make_shared<IsIntTxIgnoreRxAntennaPhasePattern>(id);
+          }
+
+      static IsIntTxIgnoreRxAntennaPhasePatternPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsIntTxIgnoreRxAntennaPhasePattern>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(IsIntTxIgnoreRxAntennaPhasePattern);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class SetSyncClient : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetSyncClient";
+      inline static const char* const Documentation = "Set host and port to connect to sync time server.\n"      "\n"      "Name Type   Description\n"      "---- ------ ----------------\n"      "Host string Host address\n"      "Port int    Host port number";
+      inline static const char* const TargetId = "";
 
 
-      SetSyncClient();
 
-      SetSyncClient(const std::string& host, int port);
+          SetSyncClient()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetSyncClientPtr create(const std::string& host, int port);
-      static SetSyncClientPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetSyncClient(const std::string& host, int port)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** host ****
-      std::string host() const;
-      void setHost(const std::string& host);
+            setHost(host);
+            setPort(port);
+          }
 
 
-      // **** port ****
-      int port() const;
-      void setPort(int port);
+          static SetSyncClientPtr create(const std::string& host, int port)
+          {
+            return std::make_shared<SetSyncClient>(host, port);
+          }
+
+      static SetSyncClientPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetSyncClient>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Host"])
+                  && parse_json<int>::is_valid(m_values["Port"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Host", "Port"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_NO_CONFIG | EXECUTE_IF_IDLE;
+          }
+
+
+          std::string host() const
+          {
+            return parse_json<std::string>::parse(m_values["Host"]);
+          }
+
+          void setHost(const std::string& host)
+          {
+            m_values.AddMember("Host", parse_json<std::string>::format(host, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int port() const
+          {
+            return parse_json<int>::parse(m_values["Port"]);
+          }
+
+          void setPort(int port)
+          {
+            m_values.AddMember("Port", parse_json<int>::format(port, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetSyncClient);
   }
 }
 

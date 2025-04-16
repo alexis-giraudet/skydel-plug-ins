@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetConfigBroadcastOnStart : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetConfigBroadcastOnStart";
+      inline static const char* const Documentation = "Set whether the main instance should send its configuration to every worker instance when simulation start.\n"      "\n"      "Name             Type Description\n"      "---------------- ---- --------------------------------------------------------------\n"      "BroadcastOnStart bool True to broadcast the configuration on start, false otherwise.";
+      inline static const char* const TargetId = "";
 
 
-      SetConfigBroadcastOnStart();
 
-      SetConfigBroadcastOnStart(bool broadcastOnStart);
+          SetConfigBroadcastOnStart()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetConfigBroadcastOnStartPtr create(bool broadcastOnStart);
-      static SetConfigBroadcastOnStartPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetConfigBroadcastOnStart(bool broadcastOnStart)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setBroadcastOnStart(broadcastOnStart);
+          }
 
 
-      // **** broadcastOnStart ****
-      bool broadcastOnStart() const;
-      void setBroadcastOnStart(bool broadcastOnStart);
+          static SetConfigBroadcastOnStartPtr create(bool broadcastOnStart)
+          {
+            return std::make_shared<SetConfigBroadcastOnStart>(broadcastOnStart);
+          }
+
+      static SetConfigBroadcastOnStartPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetConfigBroadcastOnStart>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["BroadcastOnStart"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"BroadcastOnStart"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          bool broadcastOnStart() const
+          {
+            return parse_json<bool>::parse(m_values["BroadcastOnStart"]);
+          }
+
+          void setBroadcastOnStart(bool broadcastOnStart)
+          {
+            m_values.AddMember("BroadcastOnStart", parse_json<bool>::format(broadcastOnStart, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetConfigBroadcastOnStart);
   }
 }
 

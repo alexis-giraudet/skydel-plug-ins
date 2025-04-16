@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetDuration : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetDuration";
+      inline static const char* const Documentation = "Set the simulation duration. The simulation will stop automatically when this duration is reached\n"      "\n"      "Name   Type Description\n"      "------ ---- -----------------------\n"      "Second int  The duration in seconds";
+      inline static const char* const TargetId = "";
 
 
-      SetDuration();
 
-      SetDuration(int second);
+          SetDuration()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetDurationPtr create(int second);
-      static SetDurationPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetDuration(int second)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setSecond(second);
+          }
 
 
-      // **** second ****
-      int second() const;
-      void setSecond(int second);
+          static SetDurationPtr create(int second)
+          {
+            return std::make_shared<SetDuration>(second);
+          }
+
+      static SetDurationPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetDuration>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Second"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Second"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int second() const
+          {
+            return parse_json<int>::parse(m_values["Second"]);
+          }
+
+          void setSecond(int second)
+          {
+            m_values.AddMember("Second", parse_json<int>::format(second, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetDuration);
   }
 }
 

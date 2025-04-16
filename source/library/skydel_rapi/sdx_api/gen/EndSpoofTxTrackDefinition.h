@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -27,29 +27,70 @@ namespace Sdx
     class EndSpoofTxTrackDefinition : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "EndSpoofTxTrackDefinition";
+      inline static const char* const Documentation = "This command completes the track started with the BeginSpoofTxTrackDefinition command. If\n"      "the track is accepted, the current track in the configuration is replaced with\n"      "this new track. If the track is not accepted, the current track in the config\n"      "remains unchanged.\n"      "\n"      "Name Type   Description\n"      "---- ------ ------------------------------\n"      "Id   string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      EndSpoofTxTrackDefinition();
 
-      EndSpoofTxTrackDefinition(const std::string& id);
+          EndSpoofTxTrackDefinition()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static EndSpoofTxTrackDefinitionPtr create(const std::string& id);
-      static EndSpoofTxTrackDefinitionPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          EndSpoofTxTrackDefinition(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static EndSpoofTxTrackDefinitionPtr create(const std::string& id)
+          {
+            return std::make_shared<EndSpoofTxTrackDefinition>(id);
+          }
+
+      static EndSpoofTxTrackDefinitionPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<EndSpoofTxTrackDefinition>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(EndSpoofTxTrackDefinition);
   }
 }
 

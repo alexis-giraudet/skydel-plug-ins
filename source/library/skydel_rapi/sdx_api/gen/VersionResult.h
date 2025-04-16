@@ -24,31 +24,77 @@ namespace Sdx
     class VersionResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "VersionResult";
+      inline static const char* const Documentation = "Result of GetVersion.\n"      "\n"      "Name    Type   Description\n"      "------- ------ --------------\n"      "Version string Skydel version";
+      inline static const char* const TargetId = "";
 
 
-      VersionResult();
 
-      VersionResult(const std::string& version);
+          VersionResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      VersionResult(CommandBasePtr relatedCommand, const std::string& version);
+          VersionResult(const std::string& version)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static VersionResultPtr create(const std::string& version);
+            setVersion(version);
+          }
 
-      static VersionResultPtr create(CommandBasePtr relatedCommand, const std::string& version);
-      static VersionResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          VersionResult(CommandBasePtr relatedCommand, const std::string& version)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setVersion(version);
+          }
 
 
-      // **** version ****
-      std::string version() const;
-      void setVersion(const std::string& version);
+
+          static VersionResultPtr create(const std::string& version)
+          {
+            return std::make_shared<VersionResult>(version);
+          }
+
+          static VersionResultPtr create(CommandBasePtr relatedCommand, const std::string& version)
+          {
+            return std::make_shared<VersionResult>(relatedCommand, version);
+          }
+
+      static VersionResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<VersionResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Version"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Version"}; 
+        return names; 
+      }
+      
+
+
+          std::string version() const
+          {
+            return parse_json<std::string>::parse(m_values["Version"]);
+          }
+
+          void setVersion(const std::string& version)
+          {
+            m_values.AddMember("Version", parse_json<std::string>::format(version, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(VersionResult);
+    REGISTER_COMMAND_TO_FACTORY(VersionResult);
   }
 }
 

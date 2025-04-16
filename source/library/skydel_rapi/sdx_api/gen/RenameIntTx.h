@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class RenameIntTx : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "RenameIntTx";
+      inline static const char* const Documentation = "Rename a transmitter.\n"      "\n"      "Name      Type   Description\n"      "--------- ------ -------------------------------\n"      "UsualName string Usual name for the transmitter.\n"      "Id        string Transmitter unique identifier.";
+      inline static const char* const TargetId = "";
 
 
-      RenameIntTx();
 
-      RenameIntTx(const std::string& usualName, const std::string& id);
+          RenameIntTx()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static RenameIntTxPtr create(const std::string& usualName, const std::string& id);
-      static RenameIntTxPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          RenameIntTx(const std::string& usualName, const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** usualName ****
-      std::string usualName() const;
-      void setUsualName(const std::string& usualName);
+            setUsualName(usualName);
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static RenameIntTxPtr create(const std::string& usualName, const std::string& id)
+          {
+            return std::make_shared<RenameIntTx>(usualName, id);
+          }
+
+      static RenameIntTxPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<RenameIntTx>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["UsualName"])
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"UsualName", "Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING | EXECUTE_IF_IDLE;
+          }
+
+
+          std::string usualName() const
+          {
+            return parse_json<std::string>::parse(m_values["UsualName"]);
+          }
+
+          void setUsualName(const std::string& usualName)
+          {
+            m_values.AddMember("UsualName", parse_json<std::string>::format(usualName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(RenameIntTx);
   }
 }
 

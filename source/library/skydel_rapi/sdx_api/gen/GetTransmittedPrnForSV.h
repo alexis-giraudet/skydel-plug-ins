@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 #include <vector>
 
@@ -31,34 +31,84 @@ namespace Sdx
     class GetTransmittedPrnForSV : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetTransmittedPrnForSV";
+      inline static const char* const Documentation = "Get the PRNs transmitted by the SV ID for these signals.\n"      "\n"      "Name        Type         Description\n"      "----------- ------------ ---------------------------------------------------------------------------\n"      "SvId        int          Satellite SV ID.\n"      "SignalArray array string An array of signals.\n"      "                         Accepted values are: \"L1CA\", \"L1C\", \"L2C\", \"L5\", \"E1\", \"E6BC\", \"B1\", \"B2\",\n"      "                                              \"B1C\", \"B2a\", \"B3I\", \"SBASL1\", \"SBASL5\", \"QZSSL1CA\",\n"      "                                              \"QZSSL1CB\", \"QZSSL1C\", \"QZSSL2C\", \"QZSSL5\", \"QZSSL1S\",\n"      "                                              \"QZSSL5S\", \"QZSSL6\", \"NAVICL1\", \"NAVICL5\", \"NAVICS\",\n"      "                                              \"PULSARXL\", \"PULSARX1\" and \"PULSARX5\"";
+      inline static const char* const TargetId = "";
 
 
-      GetTransmittedPrnForSV();
 
-      GetTransmittedPrnForSV(int svId, const std::vector<std::string>& signalArray);
+          GetTransmittedPrnForSV()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetTransmittedPrnForSVPtr create(int svId, const std::vector<std::string>& signalArray);
-      static GetTransmittedPrnForSVPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetTransmittedPrnForSV(int svId, const std::vector<std::string>& signalArray)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+            setSvId(svId);
+            setSignalArray(signalArray);
+          }
 
 
-      // **** signalArray ****
-      std::vector<std::string> signalArray() const;
-      void setSignalArray(const std::vector<std::string>& signalArray);
+          static GetTransmittedPrnForSVPtr create(int svId, const std::vector<std::string>& signalArray)
+          {
+            return std::make_shared<GetTransmittedPrnForSV>(svId, signalArray);
+          }
+
+      static GetTransmittedPrnForSVPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetTransmittedPrnForSV>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<std::vector<std::string>>::is_valid(m_values["SignalArray"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId", "SignalArray"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<std::string> signalArray() const
+          {
+            return parse_json<std::vector<std::string>>::parse(m_values["SignalArray"]);
+          }
+
+          void setSignalArray(const std::vector<std::string>& signalArray)
+          {
+            m_values.AddMember("SignalArray", parse_json<std::vector<std::string>>::format(signalArray, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetTransmittedPrnForSV);
   }
 }
 

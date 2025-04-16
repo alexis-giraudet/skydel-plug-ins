@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -25,29 +25,70 @@ namespace Sdx
     class EnableAlmanacExtrapolationFromEphemeris : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "EnableAlmanacExtrapolationFromEphemeris";
+      inline static const char* const Documentation = "Enable (or disable) extrapolation of the almanac from the ephemeris in Dynamic SV Data mode.\n"      "When disabled, use PushDynamicAlmanacData to push the almanac data\n"      "\n"      "Name    Type Description\n"      "------- ---- -------------------------------\n"      "Enabled bool State of almanac extrapolation.";
+      inline static const char* const TargetId = "";
 
 
-      EnableAlmanacExtrapolationFromEphemeris();
 
-      EnableAlmanacExtrapolationFromEphemeris(bool enabled);
+          EnableAlmanacExtrapolationFromEphemeris()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static EnableAlmanacExtrapolationFromEphemerisPtr create(bool enabled);
-      static EnableAlmanacExtrapolationFromEphemerisPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          EnableAlmanacExtrapolationFromEphemeris(bool enabled)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+          static EnableAlmanacExtrapolationFromEphemerisPtr create(bool enabled)
+          {
+            return std::make_shared<EnableAlmanacExtrapolationFromEphemeris>(enabled);
+          }
+
+      static EnableAlmanacExtrapolationFromEphemerisPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<EnableAlmanacExtrapolationFromEphemeris>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(EnableAlmanacExtrapolationFromEphemeris);
   }
 }
 

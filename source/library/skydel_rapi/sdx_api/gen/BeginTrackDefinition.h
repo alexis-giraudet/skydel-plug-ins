@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -25,22 +25,52 @@ namespace Sdx
     class BeginTrackDefinition : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "BeginTrackDefinition";
+      inline static const char* const Documentation = "Begins a new track definition. Actual track remains unchanged until\n"      "EndTrackDefinition command is sent and successful. After this command, the\n"      "client must push time and position pairs to form a complete track. Once all the\n"      "positions are sent, the client must send the command EndTrackDefinition.";
+      inline static const char* const TargetId = "";
 
 
-      BeginTrackDefinition();
 
-      static BeginTrackDefinitionPtr create();
-      static BeginTrackDefinitionPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          BeginTrackDefinition()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static BeginTrackDefinitionPtr create()
+          {
+            return std::make_shared<BeginTrackDefinition>();
+          }
+
+      static BeginTrackDefinitionPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<BeginTrackDefinition>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(BeginTrackDefinition);
   }
 }
 

@@ -24,31 +24,77 @@ namespace Sdx
     class IsTrajectoryCompletedResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsTrajectoryCompletedResult";
+      inline static const char* const Documentation = "Result of IsTrajectoryCompleted.\n"      "\n"      "Name        Type Description\n"      "----------- ---- ------------------------------------------\n"      "IsCompleted bool Whether the trajectory is completed or not";
+      inline static const char* const TargetId = "";
 
 
-      IsTrajectoryCompletedResult();
 
-      IsTrajectoryCompletedResult(bool isCompleted);
+          IsTrajectoryCompletedResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsTrajectoryCompletedResult(CommandBasePtr relatedCommand, bool isCompleted);
+          IsTrajectoryCompletedResult(bool isCompleted)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsTrajectoryCompletedResultPtr create(bool isCompleted);
+            setIsCompleted(isCompleted);
+          }
 
-      static IsTrajectoryCompletedResultPtr create(CommandBasePtr relatedCommand, bool isCompleted);
-      static IsTrajectoryCompletedResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsTrajectoryCompletedResult(CommandBasePtr relatedCommand, bool isCompleted)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIsCompleted(isCompleted);
+          }
 
 
-      // **** isCompleted ****
-      bool isCompleted() const;
-      void setIsCompleted(bool isCompleted);
+
+          static IsTrajectoryCompletedResultPtr create(bool isCompleted)
+          {
+            return std::make_shared<IsTrajectoryCompletedResult>(isCompleted);
+          }
+
+          static IsTrajectoryCompletedResultPtr create(CommandBasePtr relatedCommand, bool isCompleted)
+          {
+            return std::make_shared<IsTrajectoryCompletedResult>(relatedCommand, isCompleted);
+          }
+
+      static IsTrajectoryCompletedResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsTrajectoryCompletedResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["IsCompleted"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"IsCompleted"}; 
+        return names; 
+      }
+      
+
+
+          bool isCompleted() const
+          {
+            return parse_json<bool>::parse(m_values["IsCompleted"]);
+          }
+
+          void setIsCompleted(bool isCompleted)
+          {
+            m_values.AddMember("IsCompleted", parse_json<bool>::format(isCompleted, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsTrajectoryCompletedResult);
+    REGISTER_COMMAND_TO_FACTORY(IsTrajectoryCompletedResult);
   }
 }
 

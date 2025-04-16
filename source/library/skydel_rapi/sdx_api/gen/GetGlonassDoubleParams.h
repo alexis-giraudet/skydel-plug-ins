@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -26,29 +26,70 @@ namespace Sdx
     class GetGlonassDoubleParams : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGlonassDoubleParams";
+      inline static const char* const Documentation = "Please note the command GetGlonassDoubleParams is deprecated since 21.3. You may use GetGlonassEphDoubleParamForEachSV.\n"      "\n"      "Get GLONASS parameter value for all satellites\n"      "\n"      "Name      Type   Description\n"      "--------- ------ ---------------------------------------------------------\n"      "ParamName string Refer to SetGlonassEphDoubleParamForSV for accepted names";
+      inline static const char* const TargetId = "";
 
 
-      GetGlonassDoubleParams();
 
-      GetGlonassDoubleParams(const std::string& paramName);
+          GetGlonassDoubleParams()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetGlonassDoubleParamsPtr create(const std::string& paramName);
-      static GetGlonassDoubleParamsPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGlonassDoubleParams(const std::string& paramName)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setParamName(paramName);
+          }
 
 
-      // **** paramName ****
-      std::string paramName() const;
-      void setParamName(const std::string& paramName);
+          static GetGlonassDoubleParamsPtr create(const std::string& paramName)
+          {
+            return std::make_shared<GetGlonassDoubleParams>(paramName);
+          }
+
+      static GetGlonassDoubleParamsPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGlonassDoubleParams>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["ParamName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"ParamName"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string paramName() const
+          {
+            return parse_json<std::string>::parse(m_values["ParamName"]);
+          }
+
+          void setParamName(const std::string& paramName)
+          {
+            m_values.AddMember("ParamName", parse_json<std::string>::format(paramName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetGlonassDoubleParams);
   }
 }
 

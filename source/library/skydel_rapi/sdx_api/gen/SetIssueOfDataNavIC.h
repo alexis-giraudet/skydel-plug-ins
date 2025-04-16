@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <optional>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class SetIssueOfDataNavIC : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetIssueOfDataNavIC";
+      inline static const char* const Documentation = "Set NavIC Issue of data, Ephemeris and Clock (IODEC)\n"      "\n"      "Name              Type          Description\n"      "----------------- ------------- -------------------------------------------------------\n"      "EphemerisAndClock int           Issue of data, ephemeris and clock\n"      "OverrideRinex     optional bool If the IODEC overrides the RINEX IODEC, default is True";
+      inline static const char* const TargetId = "";
 
 
-      SetIssueOfDataNavIC();
 
-      SetIssueOfDataNavIC(int ephemerisAndClock, const std::optional<bool>& overrideRinex = {});
+          SetIssueOfDataNavIC()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetIssueOfDataNavICPtr create(int ephemerisAndClock, const std::optional<bool>& overrideRinex = {});
-      static SetIssueOfDataNavICPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetIssueOfDataNavIC(int ephemerisAndClock, const std::optional<bool>& overrideRinex = {})
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** ephemerisAndClock ****
-      int ephemerisAndClock() const;
-      void setEphemerisAndClock(int ephemerisAndClock);
+            setEphemerisAndClock(ephemerisAndClock);
+            setOverrideRinex(overrideRinex);
+          }
 
 
-      // **** overrideRinex ****
-      std::optional<bool> overrideRinex() const;
-      void setOverrideRinex(const std::optional<bool>& overrideRinex);
+          static SetIssueOfDataNavICPtr create(int ephemerisAndClock, const std::optional<bool>& overrideRinex = {})
+          {
+            return std::make_shared<SetIssueOfDataNavIC>(ephemerisAndClock, overrideRinex);
+          }
+
+      static SetIssueOfDataNavICPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetIssueOfDataNavIC>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["EphemerisAndClock"])
+                  && parse_json<std::optional<bool>>::is_valid(m_values["OverrideRinex"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"EphemerisAndClock", "OverrideRinex"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int ephemerisAndClock() const
+          {
+            return parse_json<int>::parse(m_values["EphemerisAndClock"]);
+          }
+
+          void setEphemerisAndClock(int ephemerisAndClock)
+          {
+            m_values.AddMember("EphemerisAndClock", parse_json<int>::format(ephemerisAndClock, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<bool> overrideRinex() const
+          {
+            return parse_json<std::optional<bool>>::parse(m_values["OverrideRinex"]);
+          }
+
+          void setOverrideRinex(const std::optional<bool>& overrideRinex)
+          {
+            m_values.AddMember("OverrideRinex", parse_json<std::optional<bool>>::format(overrideRinex, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetIssueOfDataNavIC);
   }
 }
 

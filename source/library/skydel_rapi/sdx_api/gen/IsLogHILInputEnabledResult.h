@@ -24,31 +24,77 @@ namespace Sdx
     class IsLogHILInputEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsLogHILInputEnabledResult";
+      inline static const char* const Documentation = "Result of IsLogHILInputEnabled.\n"      "\n"      "Name    Type Description\n"      "------- ---- ------------------------------------------------\n"      "Enabled bool If true, files will be created during simulation";
+      inline static const char* const TargetId = "";
 
 
-      IsLogHILInputEnabledResult();
 
-      IsLogHILInputEnabledResult(bool enabled);
+          IsLogHILInputEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsLogHILInputEnabledResult(CommandBasePtr relatedCommand, bool enabled);
+          IsLogHILInputEnabledResult(bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsLogHILInputEnabledResultPtr create(bool enabled);
+            setEnabled(enabled);
+          }
 
-      static IsLogHILInputEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled);
-      static IsLogHILInputEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsLogHILInputEnabledResult(CommandBasePtr relatedCommand, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsLogHILInputEnabledResultPtr create(bool enabled)
+          {
+            return std::make_shared<IsLogHILInputEnabledResult>(enabled);
+          }
+
+          static IsLogHILInputEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled)
+          {
+            return std::make_shared<IsLogHILInputEnabledResult>(relatedCommand, enabled);
+          }
+
+      static IsLogHILInputEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsLogHILInputEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsLogHILInputEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsLogHILInputEnabledResult);
   }
 }
 

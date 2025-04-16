@@ -25,31 +25,77 @@ namespace Sdx
     class GetOsnmaMacFunctionResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetOsnmaMacFunctionResult";
+      inline static const char* const Documentation = "Result of GetOsnmaMacFunction.\n"      "\n"      "Name        Type   Description\n"      "----------- ------ --------------------------------------------------------------------------------------------------------\n"      "MacFunction string MAC function used to authenticate the navigation data. MAC functions are: \"HMAC-SHA-256\" and \"CMAC-AES\".\n"      "                   Note: CMAC-AES can only be used with 128, 192 and 256 bits keys.";
+      inline static const char* const TargetId = "";
 
 
-      GetOsnmaMacFunctionResult();
 
-      GetOsnmaMacFunctionResult(const std::string& macFunction);
+          GetOsnmaMacFunctionResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetOsnmaMacFunctionResult(CommandBasePtr relatedCommand, const std::string& macFunction);
+          GetOsnmaMacFunctionResult(const std::string& macFunction)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetOsnmaMacFunctionResultPtr create(const std::string& macFunction);
+            setMacFunction(macFunction);
+          }
 
-      static GetOsnmaMacFunctionResultPtr create(CommandBasePtr relatedCommand, const std::string& macFunction);
-      static GetOsnmaMacFunctionResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetOsnmaMacFunctionResult(CommandBasePtr relatedCommand, const std::string& macFunction)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setMacFunction(macFunction);
+          }
 
 
-      // **** macFunction ****
-      std::string macFunction() const;
-      void setMacFunction(const std::string& macFunction);
+
+          static GetOsnmaMacFunctionResultPtr create(const std::string& macFunction)
+          {
+            return std::make_shared<GetOsnmaMacFunctionResult>(macFunction);
+          }
+
+          static GetOsnmaMacFunctionResultPtr create(CommandBasePtr relatedCommand, const std::string& macFunction)
+          {
+            return std::make_shared<GetOsnmaMacFunctionResult>(relatedCommand, macFunction);
+          }
+
+      static GetOsnmaMacFunctionResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetOsnmaMacFunctionResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["MacFunction"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"MacFunction"}; 
+        return names; 
+      }
+      
+
+
+          std::string macFunction() const
+          {
+            return parse_json<std::string>::parse(m_values["MacFunction"]);
+          }
+
+          void setMacFunction(const std::string& macFunction)
+          {
+            m_values.AddMember("MacFunction", parse_json<std::string>::format(macFunction, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetOsnmaMacFunctionResult);
+    REGISTER_COMMAND_TO_FACTORY(GetOsnmaMacFunctionResult);
   }
 }
 

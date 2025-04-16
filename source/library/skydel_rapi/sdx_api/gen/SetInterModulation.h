@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include "gen/SignalWithComponent.h"
 #include <vector>
 
@@ -26,34 +26,84 @@ namespace Sdx
     class SetInterModulation : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetInterModulation";
+      inline static const char* const Documentation = "Set the inter-modulation coefficient for this signal component. The default value is 1 for the signal component and 0 for the global inter-modulation coefficient.\n"      "\n"      "Name        Type                      Description\n"      "----------- ------------------------- -------------------------\n"      "SignalArray array SignalWithComponent Signals to multiply.\n"      "Coefficient double                    The coefficient to apply.";
+      inline static const char* const TargetId = "";
 
 
-      SetInterModulation();
 
-      SetInterModulation(const std::vector<Sdx::SignalWithComponent>& signalArray, double coefficient);
+          SetInterModulation()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetInterModulationPtr create(const std::vector<Sdx::SignalWithComponent>& signalArray, double coefficient);
-      static SetInterModulationPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetInterModulation(const std::vector<Sdx::SignalWithComponent>& signalArray, double coefficient)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** signalArray ****
-      std::vector<Sdx::SignalWithComponent> signalArray() const;
-      void setSignalArray(const std::vector<Sdx::SignalWithComponent>& signalArray);
+            setSignalArray(signalArray);
+            setCoefficient(coefficient);
+          }
 
 
-      // **** coefficient ****
-      double coefficient() const;
-      void setCoefficient(double coefficient);
+          static SetInterModulationPtr create(const std::vector<Sdx::SignalWithComponent>& signalArray, double coefficient)
+          {
+            return std::make_shared<SetInterModulation>(signalArray, coefficient);
+          }
+
+      static SetInterModulationPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetInterModulation>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<Sdx::SignalWithComponent>>::is_valid(m_values["SignalArray"])
+                  && parse_json<double>::is_valid(m_values["Coefficient"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SignalArray", "Coefficient"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::vector<Sdx::SignalWithComponent> signalArray() const
+          {
+            return parse_json<std::vector<Sdx::SignalWithComponent>>::parse(m_values["SignalArray"]);
+          }
+
+          void setSignalArray(const std::vector<Sdx::SignalWithComponent>& signalArray)
+          {
+            m_values.AddMember("SignalArray", parse_json<std::vector<Sdx::SignalWithComponent>>::format(signalArray, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          double coefficient() const
+          {
+            return parse_json<double>::parse(m_values["Coefficient"]);
+          }
+
+          void setCoefficient(double coefficient)
+          {
+            m_values.AddMember("Coefficient", parse_json<double>::format(coefficient, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetInterModulation);
   }
 }
 

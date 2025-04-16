@@ -26,36 +26,92 @@ namespace Sdx
     class GetMessageSequenceResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetMessageSequenceResult";
+      inline static const char* const Documentation = "Result of GetMessageSequence.\n"      "\n"      "Name     Type      Description\n"      "-------- --------- -------------------------------\n"      "Signal   string    Signal Name (\"L2C\" for example)\n"      "Sequence array int List of message type";
+      inline static const char* const TargetId = "";
 
 
-      GetMessageSequenceResult();
 
-      GetMessageSequenceResult(const std::string& signal, const std::vector<int>& sequence);
+          GetMessageSequenceResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetMessageSequenceResult(CommandBasePtr relatedCommand, const std::string& signal, const std::vector<int>& sequence);
+          GetMessageSequenceResult(const std::string& signal, const std::vector<int>& sequence)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetMessageSequenceResultPtr create(const std::string& signal, const std::vector<int>& sequence);
+            setSignal(signal);
+            setSequence(sequence);
+          }
 
-      static GetMessageSequenceResultPtr create(CommandBasePtr relatedCommand, const std::string& signal, const std::vector<int>& sequence);
-      static GetMessageSequenceResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetMessageSequenceResult(CommandBasePtr relatedCommand, const std::string& signal, const std::vector<int>& sequence)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSignal(signal);
+            setSequence(sequence);
+          }
 
 
-      // **** signal ****
-      std::string signal() const;
-      void setSignal(const std::string& signal);
+
+          static GetMessageSequenceResultPtr create(const std::string& signal, const std::vector<int>& sequence)
+          {
+            return std::make_shared<GetMessageSequenceResult>(signal, sequence);
+          }
+
+          static GetMessageSequenceResultPtr create(CommandBasePtr relatedCommand, const std::string& signal, const std::vector<int>& sequence)
+          {
+            return std::make_shared<GetMessageSequenceResult>(relatedCommand, signal, sequence);
+          }
+
+      static GetMessageSequenceResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetMessageSequenceResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Signal"])
+                  && parse_json<std::vector<int>>::is_valid(m_values["Sequence"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Signal", "Sequence"}; 
+        return names; 
+      }
+      
 
 
-      // **** sequence ****
-      std::vector<int> sequence() const;
-      void setSequence(const std::vector<int>& sequence);
+          std::string signal() const
+          {
+            return parse_json<std::string>::parse(m_values["Signal"]);
+          }
+
+          void setSignal(const std::string& signal)
+          {
+            m_values.AddMember("Signal", parse_json<std::string>::format(signal, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::vector<int> sequence() const
+          {
+            return parse_json<std::vector<int>>::parse(m_values["Sequence"]);
+          }
+
+          void setSequence(const std::vector<int>& sequence)
+          {
+            m_values.AddMember("Sequence", parse_json<std::vector<int>>::format(sequence, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetMessageSequenceResult);
+    REGISTER_COMMAND_TO_FACTORY(GetMessageSequenceResult);
   }
 }
 

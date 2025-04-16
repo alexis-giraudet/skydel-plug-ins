@@ -112,21 +112,17 @@ CommandResultPtr CommandFactory::createCommandResult(const std::string& serializ
   return nullptr;
 }
 
-void CommandFactory::registerFactoryFunction(const std::string& targetID,
+bool CommandFactory::registerFactoryFunction(const std::string& targetID,
                                              const std::string& cmdName,
                                              FactoryFunction fct)
 {
   auto& factory = targetID.empty() ? m->factory : m->targetFactory[targetID];
-
-  if (factory.find(cmdName) == factory.end())
+  const bool isRegistered = factory.find(cmdName) != factory.end();
+  if (!isRegistered)
   {
     factory[cmdName] = fct;
   }
-  else
-  {
-    std::cout << "Can't register factory function for command " << cmdName
-              << " because a function is already registered." << std::endl;
-  }
+  return isRegistered;
 }
 
 } // namespace Sdx

@@ -24,31 +24,77 @@ namespace Sdx
     class IsIonoOffsetEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsIonoOffsetEnabledResult";
+      inline static const char* const Documentation = "Result of IsIonoOffsetEnabled.\n"      "\n"      "Name      Type Description\n"      "--------- ---- ---------------------------------------------\n"      "IsEnabled bool True if offsets are applied on the ionosphere";
+      inline static const char* const TargetId = "";
 
 
-      IsIonoOffsetEnabledResult();
 
-      IsIonoOffsetEnabledResult(bool isEnabled);
+          IsIonoOffsetEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsIonoOffsetEnabledResult(CommandBasePtr relatedCommand, bool isEnabled);
+          IsIonoOffsetEnabledResult(bool isEnabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsIonoOffsetEnabledResultPtr create(bool isEnabled);
+            setIsEnabled(isEnabled);
+          }
 
-      static IsIonoOffsetEnabledResultPtr create(CommandBasePtr relatedCommand, bool isEnabled);
-      static IsIonoOffsetEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsIonoOffsetEnabledResult(CommandBasePtr relatedCommand, bool isEnabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIsEnabled(isEnabled);
+          }
 
 
-      // **** isEnabled ****
-      bool isEnabled() const;
-      void setIsEnabled(bool isEnabled);
+
+          static IsIonoOffsetEnabledResultPtr create(bool isEnabled)
+          {
+            return std::make_shared<IsIonoOffsetEnabledResult>(isEnabled);
+          }
+
+          static IsIonoOffsetEnabledResultPtr create(CommandBasePtr relatedCommand, bool isEnabled)
+          {
+            return std::make_shared<IsIonoOffsetEnabledResult>(relatedCommand, isEnabled);
+          }
+
+      static IsIonoOffsetEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsIonoOffsetEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["IsEnabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"IsEnabled"}; 
+        return names; 
+      }
+      
+
+
+          bool isEnabled() const
+          {
+            return parse_json<bool>::parse(m_values["IsEnabled"]);
+          }
+
+          void setIsEnabled(bool isEnabled)
+          {
+            m_values.AddMember("IsEnabled", parse_json<bool>::format(isEnabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsIonoOffsetEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsIonoOffsetEnabledResult);
   }
 }
 

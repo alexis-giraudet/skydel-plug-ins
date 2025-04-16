@@ -24,31 +24,77 @@ namespace Sdx
     class GetOsnmaTeslaHashFunctionResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetOsnmaTeslaHashFunctionResult";
+      inline static const char* const Documentation = "Result of GetOsnmaTeslaHashFunction.\n"      "\n"      "Name         Type   Description\n"      "------------ ------ -------------------------------------------------------------------------------------\n"      "HashFunction string Hash function used for the TESLA chain. Hash functions are: \"SHA-256\" and \"SHA3-256\".";
+      inline static const char* const TargetId = "";
 
 
-      GetOsnmaTeslaHashFunctionResult();
 
-      GetOsnmaTeslaHashFunctionResult(const std::string& hashFunction);
+          GetOsnmaTeslaHashFunctionResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetOsnmaTeslaHashFunctionResult(CommandBasePtr relatedCommand, const std::string& hashFunction);
+          GetOsnmaTeslaHashFunctionResult(const std::string& hashFunction)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetOsnmaTeslaHashFunctionResultPtr create(const std::string& hashFunction);
+            setHashFunction(hashFunction);
+          }
 
-      static GetOsnmaTeslaHashFunctionResultPtr create(CommandBasePtr relatedCommand, const std::string& hashFunction);
-      static GetOsnmaTeslaHashFunctionResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetOsnmaTeslaHashFunctionResult(CommandBasePtr relatedCommand, const std::string& hashFunction)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setHashFunction(hashFunction);
+          }
 
 
-      // **** hashFunction ****
-      std::string hashFunction() const;
-      void setHashFunction(const std::string& hashFunction);
+
+          static GetOsnmaTeslaHashFunctionResultPtr create(const std::string& hashFunction)
+          {
+            return std::make_shared<GetOsnmaTeslaHashFunctionResult>(hashFunction);
+          }
+
+          static GetOsnmaTeslaHashFunctionResultPtr create(CommandBasePtr relatedCommand, const std::string& hashFunction)
+          {
+            return std::make_shared<GetOsnmaTeslaHashFunctionResult>(relatedCommand, hashFunction);
+          }
+
+      static GetOsnmaTeslaHashFunctionResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetOsnmaTeslaHashFunctionResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["HashFunction"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"HashFunction"}; 
+        return names; 
+      }
+      
+
+
+          std::string hashFunction() const
+          {
+            return parse_json<std::string>::parse(m_values["HashFunction"]);
+          }
+
+          void setHashFunction(const std::string& hashFunction)
+          {
+            m_values.AddMember("HashFunction", parse_json<std::string>::format(hashFunction, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetOsnmaTeslaHashFunctionResult);
+    REGISTER_COMMAND_TO_FACTORY(GetOsnmaTeslaHashFunctionResult);
   }
 }
 

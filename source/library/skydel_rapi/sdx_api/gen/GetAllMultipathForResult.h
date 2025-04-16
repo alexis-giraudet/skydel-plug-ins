@@ -25,31 +25,77 @@ namespace Sdx
     class GetAllMultipathForResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAllMultipathForResult";
+      inline static const char* const Documentation = "Result of GetAllMultipathFor(Signal|SV|System) commands.\n"      "\n"      "Name Type         Description\n"      "---- ------------ ------------------------------------------------------\n"      "Ids  array string IDs of multipaths for the specified argument in getter";
+      inline static const char* const TargetId = "";
 
 
-      GetAllMultipathForResult();
 
-      GetAllMultipathForResult(const std::vector<std::string>& ids);
+          GetAllMultipathForResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetAllMultipathForResult(CommandBasePtr relatedCommand, const std::vector<std::string>& ids);
+          GetAllMultipathForResult(const std::vector<std::string>& ids)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetAllMultipathForResultPtr create(const std::vector<std::string>& ids);
+            setIds(ids);
+          }
 
-      static GetAllMultipathForResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& ids);
-      static GetAllMultipathForResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAllMultipathForResult(CommandBasePtr relatedCommand, const std::vector<std::string>& ids)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIds(ids);
+          }
 
 
-      // **** ids ****
-      std::vector<std::string> ids() const;
-      void setIds(const std::vector<std::string>& ids);
+
+          static GetAllMultipathForResultPtr create(const std::vector<std::string>& ids)
+          {
+            return std::make_shared<GetAllMultipathForResult>(ids);
+          }
+
+          static GetAllMultipathForResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& ids)
+          {
+            return std::make_shared<GetAllMultipathForResult>(relatedCommand, ids);
+          }
+
+      static GetAllMultipathForResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAllMultipathForResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<std::string>>::is_valid(m_values["Ids"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Ids"}; 
+        return names; 
+      }
+      
+
+
+          std::vector<std::string> ids() const
+          {
+            return parse_json<std::vector<std::string>>::parse(m_values["Ids"]);
+          }
+
+          void setIds(const std::vector<std::string>& ids)
+          {
+            m_values.AddMember("Ids", parse_json<std::vector<std::string>>::format(ids, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetAllMultipathForResult);
+    REGISTER_COMMAND_TO_FACTORY(GetAllMultipathForResult);
   }
 }
 

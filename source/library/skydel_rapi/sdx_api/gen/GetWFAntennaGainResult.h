@@ -24,31 +24,77 @@ namespace Sdx
     class GetWFAntennaGainResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetWFAntennaGainResult";
+      inline static const char* const Documentation = "Result of GetWFAntennaGain.\n"      "\n"      "Name Type Description\n"      "---- ---- -----------------\n"      "Gain int  The CRPA LNA gain";
+      inline static const char* const TargetId = "";
 
 
-      GetWFAntennaGainResult();
 
-      GetWFAntennaGainResult(int gain);
+          GetWFAntennaGainResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetWFAntennaGainResult(CommandBasePtr relatedCommand, int gain);
+          GetWFAntennaGainResult(int gain)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetWFAntennaGainResultPtr create(int gain);
+            setGain(gain);
+          }
 
-      static GetWFAntennaGainResultPtr create(CommandBasePtr relatedCommand, int gain);
-      static GetWFAntennaGainResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetWFAntennaGainResult(CommandBasePtr relatedCommand, int gain)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setGain(gain);
+          }
 
 
-      // **** gain ****
-      int gain() const;
-      void setGain(int gain);
+
+          static GetWFAntennaGainResultPtr create(int gain)
+          {
+            return std::make_shared<GetWFAntennaGainResult>(gain);
+          }
+
+          static GetWFAntennaGainResultPtr create(CommandBasePtr relatedCommand, int gain)
+          {
+            return std::make_shared<GetWFAntennaGainResult>(relatedCommand, gain);
+          }
+
+      static GetWFAntennaGainResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetWFAntennaGainResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Gain"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Gain"}; 
+        return names; 
+      }
+      
+
+
+          int gain() const
+          {
+            return parse_json<int>::parse(m_values["Gain"]);
+          }
+
+          void setGain(int gain)
+          {
+            m_values.AddMember("Gain", parse_json<int>::format(gain, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetWFAntennaGainResult);
+    REGISTER_COMMAND_TO_FACTORY(GetWFAntennaGainResult);
   }
 }
 

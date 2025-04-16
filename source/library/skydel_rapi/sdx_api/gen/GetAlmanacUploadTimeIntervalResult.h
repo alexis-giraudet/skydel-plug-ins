@@ -25,36 +25,92 @@ namespace Sdx
     class GetAlmanacUploadTimeIntervalResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAlmanacUploadTimeIntervalResult";
+      inline static const char* const Documentation = "Result of GetAlmanacUploadTimeInterval.\n"      "\n"      "Name     Type   Description\n"      "-------- ------ ----------------------------------------------------------\n"      "System   string Must be \"GPS\"\n"      "Interval int    Interval duration in sec. Accepted range is [3600..259200]";
+      inline static const char* const TargetId = "";
 
 
-      GetAlmanacUploadTimeIntervalResult();
 
-      GetAlmanacUploadTimeIntervalResult(const std::string& system, int interval);
+          GetAlmanacUploadTimeIntervalResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetAlmanacUploadTimeIntervalResult(CommandBasePtr relatedCommand, const std::string& system, int interval);
+          GetAlmanacUploadTimeIntervalResult(const std::string& system, int interval)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetAlmanacUploadTimeIntervalResultPtr create(const std::string& system, int interval);
+            setSystem(system);
+            setInterval(interval);
+          }
 
-      static GetAlmanacUploadTimeIntervalResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int interval);
-      static GetAlmanacUploadTimeIntervalResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAlmanacUploadTimeIntervalResult(CommandBasePtr relatedCommand, const std::string& system, int interval)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSystem(system);
+            setInterval(interval);
+          }
 
 
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
+
+          static GetAlmanacUploadTimeIntervalResultPtr create(const std::string& system, int interval)
+          {
+            return std::make_shared<GetAlmanacUploadTimeIntervalResult>(system, interval);
+          }
+
+          static GetAlmanacUploadTimeIntervalResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int interval)
+          {
+            return std::make_shared<GetAlmanacUploadTimeIntervalResult>(relatedCommand, system, interval);
+          }
+
+      static GetAlmanacUploadTimeIntervalResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAlmanacUploadTimeIntervalResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["Interval"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "Interval"}; 
+        return names; 
+      }
+      
 
 
-      // **** interval ****
-      int interval() const;
-      void setInterval(int interval);
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int interval() const
+          {
+            return parse_json<int>::parse(m_values["Interval"]);
+          }
+
+          void setInterval(int interval)
+          {
+            m_values.AddMember("Interval", parse_json<int>::format(interval, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetAlmanacUploadTimeIntervalResult);
+    REGISTER_COMMAND_TO_FACTORY(GetAlmanacUploadTimeIntervalResult);
   }
 }
 

@@ -26,36 +26,92 @@ namespace Sdx
     class GetEncryptionLibraryPathResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetEncryptionLibraryPathResult";
+      inline static const char* const Documentation = "Result of GetEncryptionLibraryPath.\n"      "\n"      "Name Type                 Description\n"      "---- -------------------- -------------------------\n"      "Type EncryptionSignalType Encryption signal type.\n"      "Path string               Path to the library file.";
+      inline static const char* const TargetId = "";
 
 
-      GetEncryptionLibraryPathResult();
 
-      GetEncryptionLibraryPathResult(const Sdx::EncryptionSignalType& type, const std::string& path);
+          GetEncryptionLibraryPathResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetEncryptionLibraryPathResult(CommandBasePtr relatedCommand, const Sdx::EncryptionSignalType& type, const std::string& path);
+          GetEncryptionLibraryPathResult(const Sdx::EncryptionSignalType& type, const std::string& path)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetEncryptionLibraryPathResultPtr create(const Sdx::EncryptionSignalType& type, const std::string& path);
+            setType(type);
+            setPath(path);
+          }
 
-      static GetEncryptionLibraryPathResultPtr create(CommandBasePtr relatedCommand, const Sdx::EncryptionSignalType& type, const std::string& path);
-      static GetEncryptionLibraryPathResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetEncryptionLibraryPathResult(CommandBasePtr relatedCommand, const Sdx::EncryptionSignalType& type, const std::string& path)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setType(type);
+            setPath(path);
+          }
 
 
-      // **** type ****
-      Sdx::EncryptionSignalType type() const;
-      void setType(const Sdx::EncryptionSignalType& type);
+
+          static GetEncryptionLibraryPathResultPtr create(const Sdx::EncryptionSignalType& type, const std::string& path)
+          {
+            return std::make_shared<GetEncryptionLibraryPathResult>(type, path);
+          }
+
+          static GetEncryptionLibraryPathResultPtr create(CommandBasePtr relatedCommand, const Sdx::EncryptionSignalType& type, const std::string& path)
+          {
+            return std::make_shared<GetEncryptionLibraryPathResult>(relatedCommand, type, path);
+          }
+
+      static GetEncryptionLibraryPathResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetEncryptionLibraryPathResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<Sdx::EncryptionSignalType>::is_valid(m_values["Type"])
+                  && parse_json<std::string>::is_valid(m_values["Path"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type", "Path"}; 
+        return names; 
+      }
+      
 
 
-      // **** path ****
-      std::string path() const;
-      void setPath(const std::string& path);
+          Sdx::EncryptionSignalType type() const
+          {
+            return parse_json<Sdx::EncryptionSignalType>::parse(m_values["Type"]);
+          }
+
+          void setType(const Sdx::EncryptionSignalType& type)
+          {
+            m_values.AddMember("Type", parse_json<Sdx::EncryptionSignalType>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string path() const
+          {
+            return parse_json<std::string>::parse(m_values["Path"]);
+          }
+
+          void setPath(const std::string& path)
+          {
+            m_values.AddMember("Path", parse_json<std::string>::format(path, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetEncryptionLibraryPathResult);
+    REGISTER_COMMAND_TO_FACTORY(GetEncryptionLibraryPathResult);
   }
 }
 

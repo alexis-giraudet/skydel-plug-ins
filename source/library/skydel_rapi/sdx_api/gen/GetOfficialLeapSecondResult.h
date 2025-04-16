@@ -24,31 +24,77 @@ namespace Sdx
     class GetOfficialLeapSecondResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetOfficialLeapSecondResult";
+      inline static const char* const Documentation = "Result of GetOfficialLeapSecond\n"      "\n"      "Name       Type Description\n"      "---------- ---- -----------------\n"      "LeapSecond int  Leap second value";
+      inline static const char* const TargetId = "";
 
 
-      GetOfficialLeapSecondResult();
 
-      GetOfficialLeapSecondResult(int leapSecond);
+          GetOfficialLeapSecondResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetOfficialLeapSecondResult(CommandBasePtr relatedCommand, int leapSecond);
+          GetOfficialLeapSecondResult(int leapSecond)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetOfficialLeapSecondResultPtr create(int leapSecond);
+            setLeapSecond(leapSecond);
+          }
 
-      static GetOfficialLeapSecondResultPtr create(CommandBasePtr relatedCommand, int leapSecond);
-      static GetOfficialLeapSecondResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetOfficialLeapSecondResult(CommandBasePtr relatedCommand, int leapSecond)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setLeapSecond(leapSecond);
+          }
 
 
-      // **** leapSecond ****
-      int leapSecond() const;
-      void setLeapSecond(int leapSecond);
+
+          static GetOfficialLeapSecondResultPtr create(int leapSecond)
+          {
+            return std::make_shared<GetOfficialLeapSecondResult>(leapSecond);
+          }
+
+          static GetOfficialLeapSecondResultPtr create(CommandBasePtr relatedCommand, int leapSecond)
+          {
+            return std::make_shared<GetOfficialLeapSecondResult>(relatedCommand, leapSecond);
+          }
+
+      static GetOfficialLeapSecondResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetOfficialLeapSecondResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["LeapSecond"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"LeapSecond"}; 
+        return names; 
+      }
+      
+
+
+          int leapSecond() const
+          {
+            return parse_json<int>::parse(m_values["LeapSecond"]);
+          }
+
+          void setLeapSecond(int leapSecond)
+          {
+            m_values.AddMember("LeapSecond", parse_json<int>::format(leapSecond, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetOfficialLeapSecondResult);
+    REGISTER_COMMAND_TO_FACTORY(GetOfficialLeapSecondResult);
   }
 }
 

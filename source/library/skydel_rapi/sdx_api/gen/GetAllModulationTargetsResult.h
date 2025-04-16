@@ -25,31 +25,77 @@ namespace Sdx
     class GetAllModulationTargetsResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetAllModulationTargetsResult";
+      inline static const char* const Documentation = "Result of GetAllModulationTargets.\n"      "\n"      "Name Type         Description\n"      "---- ------------ ---------------\n"      "Ids  array string list of all IDs";
+      inline static const char* const TargetId = "";
 
 
-      GetAllModulationTargetsResult();
 
-      GetAllModulationTargetsResult(const std::vector<std::string>& ids);
+          GetAllModulationTargetsResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetAllModulationTargetsResult(CommandBasePtr relatedCommand, const std::vector<std::string>& ids);
+          GetAllModulationTargetsResult(const std::vector<std::string>& ids)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetAllModulationTargetsResultPtr create(const std::vector<std::string>& ids);
+            setIds(ids);
+          }
 
-      static GetAllModulationTargetsResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& ids);
-      static GetAllModulationTargetsResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetAllModulationTargetsResult(CommandBasePtr relatedCommand, const std::vector<std::string>& ids)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setIds(ids);
+          }
 
 
-      // **** ids ****
-      std::vector<std::string> ids() const;
-      void setIds(const std::vector<std::string>& ids);
+
+          static GetAllModulationTargetsResultPtr create(const std::vector<std::string>& ids)
+          {
+            return std::make_shared<GetAllModulationTargetsResult>(ids);
+          }
+
+          static GetAllModulationTargetsResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& ids)
+          {
+            return std::make_shared<GetAllModulationTargetsResult>(relatedCommand, ids);
+          }
+
+      static GetAllModulationTargetsResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetAllModulationTargetsResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<std::string>>::is_valid(m_values["Ids"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Ids"}; 
+        return names; 
+      }
+      
+
+
+          std::vector<std::string> ids() const
+          {
+            return parse_json<std::vector<std::string>>::parse(m_values["Ids"]);
+          }
+
+          void setIds(const std::vector<std::string>& ids)
+          {
+            m_values.AddMember("Ids", parse_json<std::vector<std::string>>::format(ids, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetAllModulationTargetsResult);
+    REGISTER_COMMAND_TO_FACTORY(GetAllModulationTargetsResult);
   }
 }
 

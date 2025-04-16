@@ -24,31 +24,77 @@ namespace Sdx
     class GetStreamingBufferResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetStreamingBufferResult";
+      inline static const char* const Documentation = "Result of GetStreamingBuffer.\n"      "\n"      "Name Type Description\n"      "---- ---- -----------------------------\n"      "Size int  Streaming buffer size in msec";
+      inline static const char* const TargetId = "";
 
 
-      GetStreamingBufferResult();
 
-      GetStreamingBufferResult(int size);
+          GetStreamingBufferResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetStreamingBufferResult(CommandBasePtr relatedCommand, int size);
+          GetStreamingBufferResult(int size)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetStreamingBufferResultPtr create(int size);
+            setSize(size);
+          }
 
-      static GetStreamingBufferResultPtr create(CommandBasePtr relatedCommand, int size);
-      static GetStreamingBufferResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetStreamingBufferResult(CommandBasePtr relatedCommand, int size)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setSize(size);
+          }
 
 
-      // **** size ****
-      int size() const;
-      void setSize(int size);
+
+          static GetStreamingBufferResultPtr create(int size)
+          {
+            return std::make_shared<GetStreamingBufferResult>(size);
+          }
+
+          static GetStreamingBufferResultPtr create(CommandBasePtr relatedCommand, int size)
+          {
+            return std::make_shared<GetStreamingBufferResult>(relatedCommand, size);
+          }
+
+      static GetStreamingBufferResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetStreamingBufferResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Size"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Size"}; 
+        return names; 
+      }
+      
+
+
+          int size() const
+          {
+            return parse_json<int>::parse(m_values["Size"]);
+          }
+
+          void setSize(int size)
+          {
+            m_values.AddMember("Size", parse_json<int>::format(size, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetStreamingBufferResult);
+    REGISTER_COMMAND_TO_FACTORY(GetStreamingBufferResult);
   }
 }
 

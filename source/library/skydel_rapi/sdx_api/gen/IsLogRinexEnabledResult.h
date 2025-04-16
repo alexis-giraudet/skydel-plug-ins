@@ -24,31 +24,77 @@ namespace Sdx
     class IsLogRinexEnabledResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "IsLogRinexEnabledResult";
+      inline static const char* const Documentation = "Result of IsLogRinexEnabled.\n"      "\n"      "Name    Type Description\n"      "------- ---- ------------------------------------------------\n"      "Enabled bool If true, files will be created during simulation";
+      inline static const char* const TargetId = "";
 
 
-      IsLogRinexEnabledResult();
 
-      IsLogRinexEnabledResult(bool enabled);
+          IsLogRinexEnabledResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      IsLogRinexEnabledResult(CommandBasePtr relatedCommand, bool enabled);
+          IsLogRinexEnabledResult(bool enabled)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static IsLogRinexEnabledResultPtr create(bool enabled);
+            setEnabled(enabled);
+          }
 
-      static IsLogRinexEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled);
-      static IsLogRinexEnabledResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          IsLogRinexEnabledResult(CommandBasePtr relatedCommand, bool enabled)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setEnabled(enabled);
+          }
 
 
-      // **** enabled ****
-      bool enabled() const;
-      void setEnabled(bool enabled);
+
+          static IsLogRinexEnabledResultPtr create(bool enabled)
+          {
+            return std::make_shared<IsLogRinexEnabledResult>(enabled);
+          }
+
+          static IsLogRinexEnabledResultPtr create(CommandBasePtr relatedCommand, bool enabled)
+          {
+            return std::make_shared<IsLogRinexEnabledResult>(relatedCommand, enabled);
+          }
+
+      static IsLogRinexEnabledResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<IsLogRinexEnabledResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<bool>::is_valid(m_values["Enabled"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Enabled"}; 
+        return names; 
+      }
+      
+
+
+          bool enabled() const
+          {
+            return parse_json<bool>::parse(m_values["Enabled"]);
+          }
+
+          void setEnabled(bool enabled)
+          {
+            m_values.AddMember("Enabled", parse_json<bool>::format(enabled, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(IsLogRinexEnabledResult);
+    REGISTER_COMMAND_TO_FACTORY(IsLogRinexEnabledResult);
   }
 }
 

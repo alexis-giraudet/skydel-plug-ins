@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -25,34 +25,84 @@ namespace Sdx
     class GetSignalFromIntTx : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetSignalFromIntTx";
+      inline static const char* const Documentation = "Get all signal ID from this interference transmitters and this signal type. If the signal type is invalid, get the IDs of CW type.\n"      "\n"      "Name          Type   Description\n"      "------------- ------ ------------------------------------------------------------------------------------\n"      "IdTransmitter string Transmitter unique identifier.\n"      "SignalType    string Type of signal. Accepted signals are : \"CW\", \"Chirp\", \"Pulse\", \"BPSK\", \"BOC\", \"AWGN\"";
+      inline static const char* const TargetId = "";
 
 
-      GetSignalFromIntTx();
 
-      GetSignalFromIntTx(const std::string& idTransmitter, const std::string& signalType);
+          GetSignalFromIntTx()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetSignalFromIntTxPtr create(const std::string& idTransmitter, const std::string& signalType);
-      static GetSignalFromIntTxPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetSignalFromIntTx(const std::string& idTransmitter, const std::string& signalType)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
-
-
-      // **** idTransmitter ****
-      std::string idTransmitter() const;
-      void setIdTransmitter(const std::string& idTransmitter);
+            setIdTransmitter(idTransmitter);
+            setSignalType(signalType);
+          }
 
 
-      // **** signalType ****
-      std::string signalType() const;
-      void setSignalType(const std::string& signalType);
+          static GetSignalFromIntTxPtr create(const std::string& idTransmitter, const std::string& signalType)
+          {
+            return std::make_shared<GetSignalFromIntTx>(idTransmitter, signalType);
+          }
+
+      static GetSignalFromIntTxPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetSignalFromIntTx>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["IdTransmitter"])
+                  && parse_json<std::string>::is_valid(m_values["SignalType"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"IdTransmitter", "SignalType"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string idTransmitter() const
+          {
+            return parse_json<std::string>::parse(m_values["IdTransmitter"]);
+          }
+
+          void setIdTransmitter(const std::string& idTransmitter)
+          {
+            m_values.AddMember("IdTransmitter", parse_json<std::string>::format(idTransmitter, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::string signalType() const
+          {
+            return parse_json<std::string>::parse(m_values["SignalType"]);
+          }
+
+          void setSignalType(const std::string& signalType)
+          {
+            m_values.AddMember("SignalType", parse_json<std::string>::format(signalType, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetSignalFromIntTx);
   }
 }
 

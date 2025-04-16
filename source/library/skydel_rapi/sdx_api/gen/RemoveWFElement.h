@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class RemoveWFElement : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "RemoveWFElement";
+      inline static const char* const Documentation = "Remove last Wavefront element.";
+      inline static const char* const TargetId = "";
 
 
-      RemoveWFElement();
 
-      static RemoveWFElementPtr create();
-      static RemoveWFElementPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          RemoveWFElement()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static RemoveWFElementPtr create()
+          {
+            return std::make_shared<RemoveWFElement>();
+          }
+
+      static RemoveWFElementPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<RemoveWFElement>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(RemoveWFElement);
   }
 }
 

@@ -25,31 +25,77 @@ namespace Sdx
     class GetPluginsResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetPluginsResult";
+      inline static const char* const Documentation = "Result of GetPlugins.\n"      "\n"      "Name    Type         Description\n"      "------- ------------ ---------------------------------------------------------------------\n"      "Plugins array string List of all Plug-ins present on the system (regardless of the state).";
+      inline static const char* const TargetId = "";
 
 
-      GetPluginsResult();
 
-      GetPluginsResult(const std::vector<std::string>& plugins);
+          GetPluginsResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetPluginsResult(CommandBasePtr relatedCommand, const std::vector<std::string>& plugins);
+          GetPluginsResult(const std::vector<std::string>& plugins)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetPluginsResultPtr create(const std::vector<std::string>& plugins);
+            setPlugins(plugins);
+          }
 
-      static GetPluginsResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& plugins);
-      static GetPluginsResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetPluginsResult(CommandBasePtr relatedCommand, const std::vector<std::string>& plugins)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setPlugins(plugins);
+          }
 
 
-      // **** plugins ****
-      std::vector<std::string> plugins() const;
-      void setPlugins(const std::vector<std::string>& plugins);
+
+          static GetPluginsResultPtr create(const std::vector<std::string>& plugins)
+          {
+            return std::make_shared<GetPluginsResult>(plugins);
+          }
+
+          static GetPluginsResultPtr create(CommandBasePtr relatedCommand, const std::vector<std::string>& plugins)
+          {
+            return std::make_shared<GetPluginsResult>(relatedCommand, plugins);
+          }
+
+      static GetPluginsResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetPluginsResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::vector<std::string>>::is_valid(m_values["Plugins"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Plugins"}; 
+        return names; 
+      }
+      
+
+
+          std::vector<std::string> plugins() const
+          {
+            return parse_json<std::vector<std::string>>::parse(m_values["Plugins"]);
+          }
+
+          void setPlugins(const std::vector<std::string>& plugins)
+          {
+            m_values.AddMember("Plugins", parse_json<std::vector<std::string>>::format(plugins, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetPluginsResult);
+    REGISTER_COMMAND_TO_FACTORY(GetPluginsResult);
   }
 }
 

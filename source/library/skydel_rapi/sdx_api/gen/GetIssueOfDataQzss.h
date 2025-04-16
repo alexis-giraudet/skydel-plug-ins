@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class GetIssueOfDataQzss : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetIssueOfDataQzss";
+      inline static const char* const Documentation = "Get QZSS Issue of data, Ephemeris (IODE) and Issue of data, Clock (IODC)";
+      inline static const char* const TargetId = "";
 
 
-      GetIssueOfDataQzss();
 
-      static GetIssueOfDataQzssPtr create();
-      static GetIssueOfDataQzssPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetIssueOfDataQzss()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static GetIssueOfDataQzssPtr create()
+          {
+            return std::make_shared<GetIssueOfDataQzss>();
+          }
+
+      static GetIssueOfDataQzssPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetIssueOfDataQzss>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetIssueOfDataQzss);
   }
 }
 

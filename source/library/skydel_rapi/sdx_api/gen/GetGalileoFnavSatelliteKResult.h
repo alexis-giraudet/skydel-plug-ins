@@ -25,36 +25,92 @@ namespace Sdx
     class GetGalileoFnavSatelliteKResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGalileoFnavSatelliteKResult";
+      inline static const char* const Documentation = "Result of GetGalileoFnavSatelliteK.\n"      "\n"      "Name Type Description\n"      "---- ---- -----------------------\n"      "Prn  int  Satellite PRN number\n"      "K    int  Satellite K PRN number.";
+      inline static const char* const TargetId = "";
 
 
-      GetGalileoFnavSatelliteKResult();
 
-      GetGalileoFnavSatelliteKResult(int prn, int k);
+          GetGalileoFnavSatelliteKResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetGalileoFnavSatelliteKResult(CommandBasePtr relatedCommand, int prn, int k);
+          GetGalileoFnavSatelliteKResult(int prn, int k)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetGalileoFnavSatelliteKResultPtr create(int prn, int k);
+            setPrn(prn);
+            setK(k);
+          }
 
-      static GetGalileoFnavSatelliteKResultPtr create(CommandBasePtr relatedCommand, int prn, int k);
-      static GetGalileoFnavSatelliteKResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGalileoFnavSatelliteKResult(CommandBasePtr relatedCommand, int prn, int k)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setPrn(prn);
+            setK(k);
+          }
 
 
-      // **** prn ****
-      int prn() const;
-      void setPrn(int prn);
+
+          static GetGalileoFnavSatelliteKResultPtr create(int prn, int k)
+          {
+            return std::make_shared<GetGalileoFnavSatelliteKResult>(prn, k);
+          }
+
+          static GetGalileoFnavSatelliteKResultPtr create(CommandBasePtr relatedCommand, int prn, int k)
+          {
+            return std::make_shared<GetGalileoFnavSatelliteKResult>(relatedCommand, prn, k);
+          }
+
+      static GetGalileoFnavSatelliteKResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGalileoFnavSatelliteKResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Prn"])
+                  && parse_json<int>::is_valid(m_values["K"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Prn", "K"}; 
+        return names; 
+      }
+      
 
 
-      // **** k ****
-      int k() const;
-      void setK(int k);
+          int prn() const
+          {
+            return parse_json<int>::parse(m_values["Prn"]);
+          }
+
+          void setPrn(int prn)
+          {
+            m_values.AddMember("Prn", parse_json<int>::format(prn, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int k() const
+          {
+            return parse_json<int>::parse(m_values["K"]);
+          }
+
+          void setK(int k)
+          {
+            m_values.AddMember("K", parse_json<int>::format(k, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetGalileoFnavSatelliteKResult);
+    REGISTER_COMMAND_TO_FACTORY(GetGalileoFnavSatelliteKResult);
   }
 }
 

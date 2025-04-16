@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include "gen/EncryptionSignalType.h"
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetEncryptionLibraryPath : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetEncryptionLibraryPath";
+      inline static const char* const Documentation = "Get the specific encryption signal library path.\n"      "\n"      "Name Type                 Description\n"      "---- -------------------- -----------------------\n"      "Type EncryptionSignalType Encryption signal type.";
+      inline static const char* const TargetId = "";
 
 
-      GetEncryptionLibraryPath();
 
-      GetEncryptionLibraryPath(const Sdx::EncryptionSignalType& type);
+          GetEncryptionLibraryPath()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetEncryptionLibraryPathPtr create(const Sdx::EncryptionSignalType& type);
-      static GetEncryptionLibraryPathPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetEncryptionLibraryPath(const Sdx::EncryptionSignalType& type)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setType(type);
+          }
 
 
-      // **** type ****
-      Sdx::EncryptionSignalType type() const;
-      void setType(const Sdx::EncryptionSignalType& type);
+          static GetEncryptionLibraryPathPtr create(const Sdx::EncryptionSignalType& type)
+          {
+            return std::make_shared<GetEncryptionLibraryPath>(type);
+          }
+
+      static GetEncryptionLibraryPathPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetEncryptionLibraryPath>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<Sdx::EncryptionSignalType>::is_valid(m_values["Type"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Type"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_NO_CONFIG | EXECUTE_IF_IDLE;
+          }
+
+
+          Sdx::EncryptionSignalType type() const
+          {
+            return parse_json<Sdx::EncryptionSignalType>::parse(m_values["Type"]);
+          }
+
+          void setType(const Sdx::EncryptionSignalType& type)
+          {
+            m_values.AddMember("Type", parse_json<Sdx::EncryptionSignalType>::format(type, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetEncryptionLibraryPath);
   }
 }
 

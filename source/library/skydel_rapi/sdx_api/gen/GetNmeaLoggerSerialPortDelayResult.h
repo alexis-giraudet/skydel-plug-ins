@@ -24,31 +24,77 @@ namespace Sdx
     class GetNmeaLoggerSerialPortDelayResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetNmeaLoggerSerialPortDelayResult";
+      inline static const char* const Documentation = "Result of GetNmeaLoggerSerialPortDelay.\n"      "\n"      "Name  Type Description\n"      "----- ---- ---------------------------------\n"      "Delay int  Delay from 0 to 100 milliseconds.";
+      inline static const char* const TargetId = "";
 
 
-      GetNmeaLoggerSerialPortDelayResult();
 
-      GetNmeaLoggerSerialPortDelayResult(int delay);
+          GetNmeaLoggerSerialPortDelayResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetNmeaLoggerSerialPortDelayResult(CommandBasePtr relatedCommand, int delay);
+          GetNmeaLoggerSerialPortDelayResult(int delay)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetNmeaLoggerSerialPortDelayResultPtr create(int delay);
+            setDelay(delay);
+          }
 
-      static GetNmeaLoggerSerialPortDelayResultPtr create(CommandBasePtr relatedCommand, int delay);
-      static GetNmeaLoggerSerialPortDelayResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetNmeaLoggerSerialPortDelayResult(CommandBasePtr relatedCommand, int delay)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setDelay(delay);
+          }
 
 
-      // **** delay ****
-      int delay() const;
-      void setDelay(int delay);
+
+          static GetNmeaLoggerSerialPortDelayResultPtr create(int delay)
+          {
+            return std::make_shared<GetNmeaLoggerSerialPortDelayResult>(delay);
+          }
+
+          static GetNmeaLoggerSerialPortDelayResultPtr create(CommandBasePtr relatedCommand, int delay)
+          {
+            return std::make_shared<GetNmeaLoggerSerialPortDelayResult>(relatedCommand, delay);
+          }
+
+      static GetNmeaLoggerSerialPortDelayResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetNmeaLoggerSerialPortDelayResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["Delay"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Delay"}; 
+        return names; 
+      }
+      
+
+
+          int delay() const
+          {
+            return parse_json<int>::parse(m_values["Delay"]);
+          }
+
+          void setDelay(int delay)
+          {
+            m_values.AddMember("Delay", parse_json<int>::format(delay, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetNmeaLoggerSerialPortDelayResult);
+    REGISTER_COMMAND_TO_FACTORY(GetNmeaLoggerSerialPortDelayResult);
   }
 }
 

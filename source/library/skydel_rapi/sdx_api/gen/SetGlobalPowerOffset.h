@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class SetGlobalPowerOffset : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "SetGlobalPowerOffset";
+      inline static const char* const Documentation = "Set global power offset default value for all signals and all systems\n"      "\n"      "Name   Type   Description\n"      "------ ------ ---------------------------------------------------\n"      "Offset double Offset in dB (negative value will attenuate signal)";
+      inline static const char* const TargetId = "";
 
 
-      SetGlobalPowerOffset();
 
-      SetGlobalPowerOffset(double offset);
+          SetGlobalPowerOffset()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static SetGlobalPowerOffsetPtr create(double offset);
-      static SetGlobalPowerOffsetPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          SetGlobalPowerOffset(double offset)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setOffset(offset);
+          }
 
 
-      // **** offset ****
-      double offset() const;
-      void setOffset(double offset);
+          static SetGlobalPowerOffsetPtr create(double offset)
+          {
+            return std::make_shared<SetGlobalPowerOffset>(offset);
+          }
+
+      static SetGlobalPowerOffsetPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<SetGlobalPowerOffset>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<double>::is_valid(m_values["Offset"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Offset"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_SIMULATING | EXECUTE_IF_IDLE;
+          }
+
+
+          double offset() const
+          {
+            return parse_json<double>::parse(m_values["Offset"]);
+          }
+
+          void setOffset(double offset)
+          {
+            m_values.AddMember("Offset", parse_json<double>::format(offset, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(SetGlobalPowerOffset);
   }
 }
 

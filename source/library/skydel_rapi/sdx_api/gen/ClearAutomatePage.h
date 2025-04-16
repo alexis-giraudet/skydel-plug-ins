@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -22,22 +22,52 @@ namespace Sdx
     class ClearAutomatePage : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "ClearAutomatePage";
+      inline static const char* const Documentation = "Clear automate page.";
+      inline static const char* const TargetId = "";
 
 
-      ClearAutomatePage();
 
-      static ClearAutomatePagePtr create();
-      static ClearAutomatePagePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          ClearAutomatePage()
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+          }
+
+
+          static ClearAutomatePagePtr create()
+          {
+            return std::make_shared<ClearAutomatePage>();
+          }
+
+      static ClearAutomatePagePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<ClearAutomatePage>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(ClearAutomatePage);
   }
 }
 

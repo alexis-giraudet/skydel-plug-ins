@@ -25,36 +25,92 @@ namespace Sdx
     class GetWFAntennaElementModelResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetWFAntennaElementModelResult";
+      inline static const char* const Documentation = "Result of GetWFAntennaElementModel.\n"      "\n"      "Name             Type   Description\n"      "---------------- ------ ----------------------------------------------------------------------------------------------------\n"      "AntennaModelName string Antenna Model name to set for this element. Antenna models must be defined in vehicle antenna model.\n"      "Element          int    One-based index for element in antenna.";
+      inline static const char* const TargetId = "";
 
 
-      GetWFAntennaElementModelResult();
 
-      GetWFAntennaElementModelResult(const std::string& antennaModelName, int element);
+          GetWFAntennaElementModelResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetWFAntennaElementModelResult(CommandBasePtr relatedCommand, const std::string& antennaModelName, int element);
+          GetWFAntennaElementModelResult(const std::string& antennaModelName, int element)
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetWFAntennaElementModelResultPtr create(const std::string& antennaModelName, int element);
+            setAntennaModelName(antennaModelName);
+            setElement(element);
+          }
 
-      static GetWFAntennaElementModelResultPtr create(CommandBasePtr relatedCommand, const std::string& antennaModelName, int element);
-      static GetWFAntennaElementModelResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetWFAntennaElementModelResult(CommandBasePtr relatedCommand, const std::string& antennaModelName, int element)
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
+
+            setAntennaModelName(antennaModelName);
+            setElement(element);
+          }
 
 
-      // **** antennaModelName ****
-      std::string antennaModelName() const;
-      void setAntennaModelName(const std::string& antennaModelName);
+
+          static GetWFAntennaElementModelResultPtr create(const std::string& antennaModelName, int element)
+          {
+            return std::make_shared<GetWFAntennaElementModelResult>(antennaModelName, element);
+          }
+
+          static GetWFAntennaElementModelResultPtr create(CommandBasePtr relatedCommand, const std::string& antennaModelName, int element)
+          {
+            return std::make_shared<GetWFAntennaElementModelResult>(relatedCommand, antennaModelName, element);
+          }
+
+      static GetWFAntennaElementModelResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetWFAntennaElementModelResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["AntennaModelName"])
+                  && parse_json<int>::is_valid(m_values["Element"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"AntennaModelName", "Element"}; 
+        return names; 
+      }
+      
 
 
-      // **** element ****
-      int element() const;
-      void setElement(int element);
+          std::string antennaModelName() const
+          {
+            return parse_json<std::string>::parse(m_values["AntennaModelName"]);
+          }
+
+          void setAntennaModelName(const std::string& antennaModelName)
+          {
+            m_values.AddMember("AntennaModelName", parse_json<std::string>::format(antennaModelName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int element() const
+          {
+            return parse_json<int>::parse(m_values["Element"]);
+          }
+
+          void setElement(int element)
+          {
+            m_values.AddMember("Element", parse_json<int>::format(element, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetWFAntennaElementModelResult);
+    REGISTER_COMMAND_TO_FACTORY(GetWFAntennaElementModelResult);
   }
 }
 

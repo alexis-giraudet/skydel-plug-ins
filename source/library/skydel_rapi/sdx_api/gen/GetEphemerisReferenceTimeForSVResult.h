@@ -30,46 +30,122 @@ namespace Sdx
     class GetEphemerisReferenceTimeForSVResult : public CommandResult
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetEphemerisReferenceTimeForSVResult";
+      inline static const char* const Documentation = "Result of GetEphemerisReferenceTimeForSV.\n"      "\n"      "Name        Type            Description\n"      "----------- --------------- -------------------------------------------------------------------------------------------\n"      "System      string          \"GPS\", \"Galileo\", \"BeiDou\", \"QZSS\", \"NavIC\" or \"PULSAR\"\n"      "SvId        int             The satellite's SV ID.\n"      "Time        datetime        GPS date and time (it is the GPS time expressed in UTC format)\n"      "DataSetName optional string Optional name of the data set to use. If no value is provided, the active data set is used.";
+      inline static const char* const TargetId = "";
 
 
-      GetEphemerisReferenceTimeForSVResult();
 
-      GetEphemerisReferenceTimeForSVResult(const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {});
+          GetEphemerisReferenceTimeForSVResult()
+            : CommandResult(CmdName, TargetId)
+          {}
 
-      GetEphemerisReferenceTimeForSVResult(CommandBasePtr relatedCommand, const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {});
+          GetEphemerisReferenceTimeForSVResult(const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId)
+          {
 
-      static GetEphemerisReferenceTimeForSVResultPtr create(const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {});
+            setSystem(system);
+            setSvId(svId);
+            setTime(time);
+            setDataSetName(dataSetName);
+          }
 
-      static GetEphemerisReferenceTimeForSVResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {});
-      static GetEphemerisReferenceTimeForSVResultPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetEphemerisReferenceTimeForSVResult(CommandBasePtr relatedCommand, const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {})
+            : CommandResult(CmdName, TargetId, relatedCommand)
+          {
 
-
-      // **** system ****
-      std::string system() const;
-      void setSystem(const std::string& system);
-
-
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
-
-
-      // **** time ****
-      Sdx::DateTime time() const;
-      void setTime(const Sdx::DateTime& time);
+            setSystem(system);
+            setSvId(svId);
+            setTime(time);
+            setDataSetName(dataSetName);
+          }
 
 
-      // **** dataSetName ****
-      std::optional<std::string> dataSetName() const;
-      void setDataSetName(const std::optional<std::string>& dataSetName);
+
+          static GetEphemerisReferenceTimeForSVResultPtr create(const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<GetEphemerisReferenceTimeForSVResult>(system, svId, time, dataSetName);
+          }
+
+          static GetEphemerisReferenceTimeForSVResultPtr create(CommandBasePtr relatedCommand, const std::string& system, int svId, const Sdx::DateTime& time, const std::optional<std::string>& dataSetName = {})
+          {
+            return std::make_shared<GetEphemerisReferenceTimeForSVResult>(relatedCommand, system, svId, time, dataSetName);
+          }
+
+      static GetEphemerisReferenceTimeForSVResultPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetEphemerisReferenceTimeForSVResult>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["System"])
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                  && parse_json<Sdx::DateTime>::is_valid(m_values["Time"])
+                  && parse_json<std::optional<std::string>>::is_valid(m_values["DataSetName"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"System", "SvId", "Time", "DataSetName"}; 
+        return names; 
+      }
+      
+
+
+          std::string system() const
+          {
+            return parse_json<std::string>::parse(m_values["System"]);
+          }
+
+          void setSystem(const std::string& system)
+          {
+            m_values.AddMember("System", parse_json<std::string>::format(system, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          Sdx::DateTime time() const
+          {
+            return parse_json<Sdx::DateTime>::parse(m_values["Time"]);
+          }
+
+          void setTime(const Sdx::DateTime& time)
+          {
+            m_values.AddMember("Time", parse_json<Sdx::DateTime>::format(time, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
+
+
+          std::optional<std::string> dataSetName() const
+          {
+            return parse_json<std::optional<std::string>>::parse(m_values["DataSetName"]);
+          }
+
+          void setDataSetName(const std::optional<std::string>& dataSetName)
+          {
+            m_values.AddMember("DataSetName", parse_json<std::optional<std::string>>::format(dataSetName, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    REGISTER_COMMAND_TO_FACTORY_DECL(GetEphemerisReferenceTimeForSVResult);
+    REGISTER_COMMAND_TO_FACTORY(GetEphemerisReferenceTimeForSVResult);
   }
 }
 

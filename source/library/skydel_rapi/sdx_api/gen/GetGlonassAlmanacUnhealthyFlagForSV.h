@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetGlonassAlmanacUnhealthyFlagForSV : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetGlonassAlmanacUnhealthyFlagForSV";
+      inline static const char* const Documentation = "Get GLONASS satellite Almanac Unhealthy Flag Cn\n"      "\n"      "Name Type Description\n"      "---- ---- ---------------------------\n"      "SvId int  The satellite's SV ID 1..24";
+      inline static const char* const TargetId = "";
 
 
-      GetGlonassAlmanacUnhealthyFlagForSV();
 
-      GetGlonassAlmanacUnhealthyFlagForSV(int svId);
+          GetGlonassAlmanacUnhealthyFlagForSV()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetGlonassAlmanacUnhealthyFlagForSVPtr create(int svId);
-      static GetGlonassAlmanacUnhealthyFlagForSVPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetGlonassAlmanacUnhealthyFlagForSV(int svId)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setSvId(svId);
+          }
 
 
-      // **** svId ****
-      int svId() const;
-      void setSvId(int svId);
+          static GetGlonassAlmanacUnhealthyFlagForSVPtr create(int svId)
+          {
+            return std::make_shared<GetGlonassAlmanacUnhealthyFlagForSV>(svId);
+          }
+
+      static GetGlonassAlmanacUnhealthyFlagForSVPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetGlonassAlmanacUnhealthyFlagForSV>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<int>::is_valid(m_values["SvId"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"SvId"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          int svId() const
+          {
+            return parse_json<int>::parse(m_values["SvId"]);
+          }
+
+          void setSvId(int svId)
+          {
+            m_values.AddMember("SvId", parse_json<int>::format(svId, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetGlonassAlmanacUnhealthyFlagForSV);
   }
 }
 

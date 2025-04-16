@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class ImportNmeaTrack : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "ImportNmeaTrack";
+      inline static const char* const Documentation = "Import NMEA track file\n"      "\n"      "Name Type   Description\n"      "---- ------ --------------\n"      "Path string NMEA file path";
+      inline static const char* const TargetId = "";
 
 
-      ImportNmeaTrack();
 
-      ImportNmeaTrack(const std::string& path);
+          ImportNmeaTrack()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static ImportNmeaTrackPtr create(const std::string& path);
-      static ImportNmeaTrackPtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          ImportNmeaTrack(const std::string& path)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setPath(path);
+          }
 
 
-      // **** path ****
-      std::string path() const;
-      void setPath(const std::string& path);
+          static ImportNmeaTrackPtr create(const std::string& path)
+          {
+            return std::make_shared<ImportNmeaTrack>(path);
+          }
+
+      static ImportNmeaTrackPtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<ImportNmeaTrack>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Path"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Path"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string path() const
+          {
+            return parse_json<std::string>::parse(m_values["Path"]);
+          }
+
+          void setPath(const std::string& path)
+          {
+            m_values.AddMember("Path", parse_json<std::string>::format(path, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(ImportNmeaTrack);
   }
 }
 

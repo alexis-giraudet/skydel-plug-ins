@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "command_base.h"
-
+#include "command_factory.h"
 #include <string>
 
 namespace Sdx
@@ -24,29 +24,70 @@ namespace Sdx
     class GetN310LocalOscillatorSource : public CommandBase
     {
     public:
-      static const char* const CmdName;
-      static const char* const Documentation;
-      static const char* const TargetId;
+      inline static const char* const CmdName = "GetN310LocalOscillatorSource";
+      inline static const char* const Documentation = "Get the local oscillator source of the N310. Can be Internal or External. By default, the source is Internal.\n"      "\n"      "Name Type   Description\n"      "---- ------ --------------------------\n"      "Id   string N310 modulation target Id.";
+      inline static const char* const TargetId = "";
 
 
-      GetN310LocalOscillatorSource();
 
-      GetN310LocalOscillatorSource(const std::string& id);
+          GetN310LocalOscillatorSource()
+            : CommandBase(CmdName, TargetId)
+          {}
 
-      static GetN310LocalOscillatorSourcePtr create(const std::string& id);
-      static GetN310LocalOscillatorSourcePtr dynamicCast(CommandBasePtr ptr);
-      virtual bool isValid() const override;
-      virtual std::string documentation() const override;
-      virtual const std::vector<std::string>& fieldNames() const override;
+          GetN310LocalOscillatorSource(const std::string& id)
+            : CommandBase(CmdName, TargetId)
+          {
 
-      virtual int executePermission() const override;
+            setId(id);
+          }
 
 
-      // **** id ****
-      std::string id() const;
-      void setId(const std::string& id);
+          static GetN310LocalOscillatorSourcePtr create(const std::string& id)
+          {
+            return std::make_shared<GetN310LocalOscillatorSource>(id);
+          }
+
+      static GetN310LocalOscillatorSourcePtr dynamicCast(CommandBasePtr ptr)
+      {
+        return std::dynamic_pointer_cast<GetN310LocalOscillatorSource>(ptr);
+      }
+
+      virtual bool isValid() const override
+      {
+
+                return m_values.IsObject()
+                  && parse_json<std::string>::is_valid(m_values["Id"])
+                ;
+      }
+
+      virtual std::string documentation() const override { return Documentation; }
+
+      virtual const std::vector<std::string>& fieldNames() const override
+      { 
+        static const std::vector<std::string> names {"Id"}; 
+        return names; 
+      }
+      
+
+
+          int executePermission() const
+          {
+            return EXECUTE_IF_IDLE;
+          }
+
+
+          std::string id() const
+          {
+            return parse_json<std::string>::parse(m_values["Id"]);
+          }
+
+          void setId(const std::string& id)
+          {
+            m_values.AddMember("Id", parse_json<std::string>::format(id, m_values.GetAllocator()), m_values.GetAllocator());
+          }
+
     };
-    
+    REGISTER_COMMAND_TO_FACTORY(GetN310LocalOscillatorSource);
   }
 }
 
